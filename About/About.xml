@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ModMetaData>
+  <name>Just Start</name>
+  <packageId>justart.juststart</packageId>
+  <author>Just Start</author>
+  <description>You configure the game. Just Start deals you the hand.
+
+Just Start is a controlled-random-start framework. It removes the optimisation-heavy pre-game choices (starting tile hunting, pawn rerolling) while preserving every normal choice you make about scenario, storyteller, difficulty, and world generation.
+
+Scenario defines constraints. Just Start randomly selects within those constraints.
+
+After you finish configuring your world, use the Just Start button to auto-select a valid starting tile and generate your starting pawns (and, where applicable, ideology) without the usual reroll loop.
+
+Includes five example scenarios that double as a public XML framework for mod authors: Lost Colony, The Prisoner, I Got This, Mountain Dwellers, and more.
+
+DLC-aware: works with Core alone, and gains extra capabilities when Ideology, Biotech, and Odyssey are active.</description>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+      <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+    <li>Ludeon.RimWorld</li>
+    <li>Ludeon.RimWorld.Royalty</li>
+    <li>Ludeon.RimWorld.Ideology</li>
+    <li>Ludeon.RimWorld.Biotech</li>
+    <li>Ludeon.RimWorld.Anomaly</li>
+    <li>Ludeon.RimWorld.Odyssey</li>
+  </loadAfter>
+</ModMetaData>

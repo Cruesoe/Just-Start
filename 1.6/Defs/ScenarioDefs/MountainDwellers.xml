@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Defs>
+
+  <!--
+    Mountain Dwellers - Dwarf Fortress-inspired embark (Section 13, Scenario 4). Seven starting
+    colonists, forced mountainous terrain, one pack animal carrying expedition supplies.
+    Pack-animal species pool and supply manifest are illustrative defaults, not finalised design.
+  -->
+  <ScenarioDef>
+    <defName>JustStart_MountainDwellers</defName>
+    <label>Mountain Dwellers</label>
+    <description>Seven souls, a loaded muffalo, and a mountain that will have to do.</description>
+    <scenario>
+      <summary>JustStart_MountainDwellers</summary>
+      <name>Mountain Dwellers</name>
+      <playerFaction>
+        <factionDef>PlayerColony</factionDef>
+      </playerFaction>
+      <parts>
+        <li Class="ScenPart_PlayerPawnsArriveMethod">
+          <def>PlayerPawnsArriveMethod</def>
+          <method>Standing</method>
+        </li>
+      </parts>
+    </scenario>
+    <modExtensions>
+      <li Class="JustStart.JustStartScenarioExtension">
+        <tileConstraints>
+          <li Class="JustStart.TileConstraint_Hilliness">
+            <allowed>
+              <li>Mountainous</li>
+            </allowed>
+          </li>
+        </tileConstraints>
+        <pawnRoles>
+          <li>
+            <id>colonists</id>
+            <count>7</count>
+            <faction>PlayerColonist</faction>
+          </li>
+        </pawnRoles>
+        <animalRoles>
+          <li>
+            <id>pack_animal</id>
+            <count>1</count>
+            <requirePackAnimal>true</requirePackAnimal>
+            <carriedInventory>
+              <li>
+                <thingDef>MealSurvivalPack</thingDef>
+                <count>50</count>
+              </li>
+              <li>
+                <thingDef>Medicine</thingDef>
+                <count>10</count>
+              </li>
+              <li>
+                <thingDef>WoodLog</thingDef>
+                <count>75</count>
+              </li>
+            </carriedInventory>
+          </li>
+        </animalRoles>
+      </li>
+    </modExtensions>
+  </ScenarioDef>
+
+</Defs>

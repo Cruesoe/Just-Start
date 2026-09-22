@@ -1,0 +1,5 @@
+bin/
+obj/
+*.user
+1.6/Assemblies/*.dll
+.vs/

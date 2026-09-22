@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>JustStart</AssemblyName>
+    <RootNamespace>JustStart</RootNamespace>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>..\..\1.6\Assemblies\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!--
+      RimWorldInstallDir must point at a local RimWorld install for RimWorldData/Managed assemblies.
+      This project could not be compiled in the authoring environment (no RimWorld install available),
+      so exact API signatures below are based on documented/public RimWorld 1.6 modding APIs and have
+      NOT been verified against the actual game assemblies. Build locally and fix any signature drift
+      before shipping. See README.md "Known verification gaps".
+    -->
+    <RimWorldInstallDir Condition="'$(RimWorldInstallDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\RimWorldWin64_Data\Managed</RimWorldInstallDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(RimWorldInstallDir)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(RimWorldInstallDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(RimWorldInstallDir)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(RimWorldInstallDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

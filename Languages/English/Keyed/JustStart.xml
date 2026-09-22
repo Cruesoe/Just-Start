@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+  <JustStart.Button.JustStart>Just Start</JustStart.Button.JustStart>
+
+  <JustStart.Settings.CuratedRestrictions.Label>Use curated vanilla restrictions</JustStart.Settings.CuratedRestrictions.Label>
+  <JustStart.Settings.CuratedRestrictions.Tooltip>When enabled, vanilla scenarios with a Just Start curated location profile use it to restrict the starting location. Off by default: vanilla scenarios use any otherwise-valid location.</JustStart.Settings.CuratedRestrictions.Tooltip>
+  <JustStart.Settings.CuratedRestrictions.Note>Curated profiles are supplied per-scenario as data. None are bundled yet.</JustStart.Settings.CuratedRestrictions.Note>
+
+  <JustStart.Error.NoValidTile>Just Start could not find a valid starting tile for {0} on this world. Try regenerating the world or changing its settings.</JustStart.Error.NoValidTile>
+  <JustStart.Error.ValidationFailed>Just Start found a problem with this scenario's configuration. See the log for details.</JustStart.Error.ValidationFailed>
+
+  <JustStart.Constraint.Biome.Allowed>Biome must be one of: {0}</JustStart.Constraint.Biome.Allowed>
+  <JustStart.Constraint.Biome.Excluded>Biome must not be: {0}</JustStart.Constraint.Biome.Excluded>
+  <JustStart.Constraint.Hilliness.Allowed>Terrain must be: {0}</JustStart.Constraint.Hilliness.Allowed>
+</LanguageData>

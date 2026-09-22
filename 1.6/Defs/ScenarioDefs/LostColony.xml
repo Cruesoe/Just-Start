@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Defs>
+
+  <!--
+    Lost Colony - showcase for xenotype randomisation (Section 13, Scenario 1).
+    The whole starting colony shares one randomly selected eligible xenotype; the player does
+    not choose which one. Pawn count (3) and lack of biome/tile restriction are illustrative
+    defaults, not finalised design (see design doc Section 19 "Open Decisions").
+  -->
+  <ScenarioDef>
+    <defName>JustStart_LostColony</defName>
+    <label>Lost Colony</label>
+    <description>A colony ship went down. Everyone who survived the crash is, somehow, the same kind of person.</description>
+    <scenario>
+      <summary>JustStart_LostColony</summary>
+      <name>Lost Colony</name>
+      <playerFaction>
+        <factionDef>PlayerColony</factionDef>
+      </playerFaction>
+      <parts>
+        <li Class="ScenPart_PlayerPawnsArriveMethod">
+          <def>PlayerPawnsArriveMethod</def>
+          <method>Standing</method>
+        </li>
+        <li Class="ScenPart_ConfigPage_ConfigureStartingPawns">
+          <def>ConfigPage_ConfigureStartingPawns</def>
+          <pawnCount>3</pawnCount>
+          <pawnChoiceCount>3</pawnChoiceCount>
+        </li>
+      </parts>
+    </scenario>
+    <modExtensions>
+      <li Class="JustStart.JustStartScenarioExtension">
+        <pawnRoles>
+          <li>
+            <id>colonists</id>
+            <count>3</count>
+            <faction>PlayerColonist</faction>
+            <xenotypeRules>
+              <mode>SameForAll</mode>
+            </xenotypeRules>
+          </li>
+        </pawnRoles>
+      </li>
+    </modExtensions>
+  </ScenarioDef>
+
+</Defs>
