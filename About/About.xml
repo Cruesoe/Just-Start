@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>Just Start</name>
-  <packageId>justart.juststart</packageId>
-  <author>Just Start</author>
+  <packageId>cruesoe.juststart</packageId>
+  <author>Cruesoe</author>
+  <modVersion IgnoreIfNoMatchingField="True">260924</modVersion>
   <description>You configure the game. Just Start deals you the hand.
 
 Just Start is a controlled-random-start framework. It removes the optimisation-heavy pre-game choices (starting tile hunting, pawn rerolling) while preserving every normal choice you make about scenario, storyteller, difficulty, and world generation.
@@ -11,7 +12,7 @@ Scenario defines constraints. Just Start randomly selects within those constrain
 
 After you finish configuring your world, use the Just Start button to auto-select a valid starting tile and generate your starting pawns (and, where applicable, ideology) without the usual reroll loop.
 
-Includes five example scenarios that double as a public XML framework for mod authors: Lost Colony, The Prisoner, I Got This, Mountain Dwellers, and more.
+Includes five example scenarios that double as a public XML framework for mod authors: The Kindred, The Prisoner, I Got This, Mountain Dwellers, and Randy&apos;s Choice.
 
 DLC-aware: works with Core alone, and gains extra capabilities when Ideology, Biotech, and Odyssey are active.</description>
   <supportedVersions>

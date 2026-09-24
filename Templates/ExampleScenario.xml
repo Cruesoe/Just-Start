@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Just Start scenario template - reference only, not a real Def.
+
+  This file lives outside 1.6/Defs, so RimWorld never loads it. Copy the parts you need into a
+  real ScenarioDef under 1.6/Defs/ScenarioDefs (see the five bundled scenarios there for working
+  examples) and delete everything you don't use - every field below is optional, and an empty
+  JustStartScenarioExtension still gets automatic tile selection and pawn generation using the
+  scenario's own vanilla rules.
+
+  Where a field takes a list, an empty or absent list always means "no restriction", never "none
+  allowed".
+-->
+<Defs>
+
+  <ScenarioDef ParentName="ScenarioBase">
+    <defName>JustStart_ExampleScenario</defName>
+    <label>Example Scenario</label>
+    <description>Shown on the scenario-select screen.</description>
+    <scenario>
+      <summary>Short summary shown under the label.</summary>
+      <name>Example Scenario</name>
+      <parts>
+        <!-- Standard vanilla ScenParts. Just Start doesn't require any particular part; it only
+             reads/patches the ones below when present. -->
+        <li Class="ScenPart_PlayerPawnsArriveMethod">
+          <def>PlayerPawnsArriveMethod</def>
+          <method>Standing</method>
+        </li>
+
+        <!-- Optional: the intro text shown after Just Start finishes generating the map (also
+             what third-party mods like Immersive Opening hook into). Omit it entirely for no
+             intro dialog. -->
+        <li Class="ScenPart_GameStartDialog">
+          <def>GameStartDialog</def>
+          <text>Flavour text for the opening dialog. Use \n\n for a paragraph break.</text>
+          <closeSound>GameStartSting</closeSound>
+        </li>
+      </parts>
+    </scenario>
+
+    <modExtensions>
+      <li Class="JustStart.JustStartScenarioExtension">
+
+        <!-- If true, tileConstraints below only apply when the player enables "use curated
+             vanilla restrictions" in mod settings. Leave false (or omit) for a custom scenario
+             like this one - only vanilla scenarios opting into curated profiles need it true. -->
+        <curatedRestrictionOnly>false</curatedRestrictionOnly>
+
+        <!-- Player FactionDef defNames, most preferred first. The first one that's actually
+             loaded becomes the player faction; if none are, the scenario keeps its own. Omit
+             entirely to always use the scenario's own playerFaction. -->
+        <preferredPlayerFactions>
+          <li>SomeMod_PlayerFactionDefName</li>
+        </preferredPlayerFactions>
+
+        <!-- Rules the starting tile must satisfy. Omit for "any vanilla-valid tile". Constraint
+             types are listed via Class="...", the same idiom vanilla uses for ScenParts. -->
+        <tileConstraints>
+          <li Class="JustStart.TileConstraint_Biome">
+            <!-- allowedBiomes restricts to only these; excludedBiomes rules these out. Set
+                 either, both, or neither. -->
+            <allowedBiomes>
+              <li>TemperateForest</li>
+              <li>TropicalRainforest</li>
+            </allowedBiomes>
+          </li>
+          <li Class="JustStart.TileConstraint_Hilliness">
+            <allowed>
+              <li>Mountainous</li>
+            </allowed>
+          </li>
+          <li Class="JustStart.TileConstraint_Temperature">
+            <!-- Average yearly temperature range, in Celsius. -->
+            <averageTemperature>0~30</averageTemperature>
+          </li>
+        </tileConstraints>
+
+        <!-- Also allows biomes vanilla never picks at random (e.g. sea ice, glacial plain).
+             Needed if a tileConstraints entry above names one of those biomes, since otherwise
+             no candidate tile would ever qualify. -->
+        <allowAnyBiome>false</allowAnyBiome>
+
+        <!-- If set, one is picked at random and replaces the scenario's own arrival method
+             (vanilla PlayerPawnsArriveMethod values: Standing, DropPods, CrashedShip). Omit to
+             keep whatever the scenario's own ScenPart_PlayerPawnsArriveMethod says. -->
+        <arrivalMethods>
+          <li>Standing</li>
+          <li>DropPods</li>
+        </arrivalMethods>
+
+        <!-- If set, one is picked at random. Omit to keep vanilla's latitude-based default. -->
+        <startingSeasons>
+          <li>Spring</li>
+          <li>Summer</li>
+        </startingSeasons>
+
+        <!-- Starting pawns, grouped by role. Omit entirely to let the scenario's own vanilla
+             parts (and normal world-gen pawn count) decide. A scenario can declare several roles,
+             e.g. one PlayerColonist group plus a HostileOnMap group - see ThePrisoner.xml. -->
+        <pawnRoles>
+          <li>
+            <!-- Identifies the role in logs/errors only; never shown to the player. -->
+            <id>colonists</id>
+
+            <!-- PlayerColonist, PlayerPrisoner, or HostileOnMap. -->
+            <faction>PlayerColonist</faction>
+
+            <!-- Fixed count. Use countRange instead for a random count (e.g. 1~5) - set only one
+                 of the two. -->
+            <count>3</count>
+            <!-- <countRange>1~5</countRange> -->
+
+            <!-- Pawn kind to generate. Optional for PlayerColonist/PlayerPrisoner (defaults to
+                 the faction's normal kind); required for HostileOnMap. -->
+            <!-- <kindDef>Villager</kindDef> -->
+
+            <!-- HostileOnMap and PlayerPrisoner only: which faction to generate under. Defaults to
+                 the kind's own faction if it suits, else a random hostile (HostileOnMap) or
+                 non-player (PlayerPrisoner) humanlike faction. The role is skipped if none exists. -->
+            <!-- <factionDef>Pirate</factionDef> -->
+
+            <!-- Per-role xenotype rule, overriding the scenario-wide xenotypeRules below for just
+                 this role. Same shape as xenotypeRules; see that block for the field list. -->
+            <!-- <xenotypeRules> ... </xenotypeRules> -->
+
+            <!-- Items given to each pawn: worn or equipped where the slot is free, otherwise
+                 carried. useDefaultVanillaGear=false strips vanilla-generated gear/possessions
+                 first, leaving only fixedEquipment; true (the default) adds it on top. -->
+            <!--
+            <useDefaultVanillaGear>false</useDefaultVanillaGear>
+            <fixedEquipment>
+              <Gun_Revolver>1</Gun_Revolver>
+            </fixedEquipment>
+            -->
+
+            <!-- One of these is picked at random and replaces any weapon, after fixedEquipment. -->
+            <!--
+            <weaponOptions>
+              <MeleeWeapon_Club>1</MeleeWeapon_Club>
+              <MeleeWeapon_Knife>1</MeleeWeapon_Knife>
+            </weaponOptions>
+            -->
+
+            <!-- Non-colonist roles only: distance in cells from the player's start spot. Defaults
+                 to 30~45 for HostileOnMap, 0~10 otherwise. Colonists are placed by the arrival
+                 method instead. -->
+            <!-- <spawnDistance>30~45</spawnDistance> -->
+
+            <!-- HostileOnMap only. -->
+            <!-- <fightToTheDeath>true</fightToTheDeath> -->
+            <!-- <canKidnap>false</canKidnap> -->
+            <!-- <canSteal>false</canSteal> -->
+            <!-- <canPickUpWeapons>false</canPickUpWeapons> -->
+
+            <!-- Any role. -->
+            <!-- <mustBeCapableOfViolence>true</mustBeCapableOfViolence> -->
+            <!-- <gender>Male</gender> -->
+            <!-- <biologicalAgeRange>18~65</biologicalAgeRange> -->
+          </li>
+        </pawnRoles>
+
+        <!-- Biotech only. Scenario-wide xenotype rule, shared by all PlayerColonist roles that
+             don't declare their own (SameForAll gives them all one xenotype; requiredCount counts
+             across all of them). mode is one of: Any, Random, AllowedPool, Required, Fixed,
+             Excluded, SameForAll. xenotypes/requiredCount only matter for the modes that need
+             them - see XenotypeRuleSet.cs for exactly which. -->
+        <xenotypeRules>
+          <mode>SameForAll</mode>
+          <!-- <xenotypes><li>Genie</li></xenotypes> -->
+          <!-- <requiredCount>1</requiredCount> -->
+        </xenotypeRules>
+
+        <!-- Ideology only. Omit entirely to use the mod's default ideoligion mode setting.
+             mode picks one fixed value; modes instead picks randomly from a list at game start -
+             set one or the other. forcedMemes/disallowedMemes/disallowedPrecepts only apply to
+             the Fixed and Fluid modes. -->
+        <ideologyRules>
+          <mode>Fixed</mode>
+          <!-- <modes><li>Fixed</li><li>Fluid</li></modes> -->
+          <!-- <generationAttempts>50</generationAttempts> -->
+          <!-- <forcedMemes><li>Nudism</li></forcedMemes> -->
+          <!-- <disallowedMemes><li>Cannibal</li></disallowedMemes> -->
+          <!-- <disallowedPrecepts><li>Cannibalism_Abhorrent</li></disallowedPrecepts> -->
+        </ideologyRules>
+
+        <!-- Starting animals. Omit for none. -->
+        <animalRoles>
+          <li>
+            <id>pack_animal</id>
+            <count>1</count>
+
+            <!-- Species pool to pick from at random. Ignored if fixedSpecies is set. Left empty,
+                 it is every pack animal when requirePackAnimal is set, else every animal vanilla
+                 would pick as a random pet. -->
+            <!-- <allowedSpecies><li>Muffalo</li></allowedSpecies> -->
+            <!-- <fixedSpecies>Muffalo</fixedSpecies> -->
+
+            <!-- Restricts the species pool to pack animals (RaceProps.packAnimal). -->
+            <requirePackAnimal>true</requirePackAnimal>
+
+            <!-- Items placed in the animal's own inventory, not spawned loose on the map. -->
+            <carriedInventory>
+              <Pemmican>50</Pemmican>
+              <WoodLog>75</WoodLog>
+            </carriedInventory>
+
+            <!-- Distance in cells from the player's start spot. Defaults to 0~10. -->
+            <!-- <spawnDistance>0~10</spawnDistance> -->
+          </li>
+        </animalRoles>
+
+        <!-- Items left on the map for the player to find. Each entry picks one of its own options
+             at random and places it distance cells from the start spot (default 8~15). -->
+        <mapThings>
+          <li>
+            <options>
+              <Gun_Revolver>1</Gun_Revolver>
+              <Gun_Autopistol>1</Gun_Autopistol>
+            </options>
+            <distance>8~15</distance>
+          </li>
+        </mapThings>
+
+      </li>
+    </modExtensions>
+  </ScenarioDef>
+
+</Defs>

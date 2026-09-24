@@ -1,58 +1,54 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using RimWorld;
 using Verse;
 
 namespace JustStart
 {
     /// <summary>
-    /// Produces starting pawns without exposing the normal reroll/optimisation UI. For plain
-    /// vanilla scenarios (no JustStartScenarioExtension, or one with no pawnRoles declared)
-    /// this simply calls the scenario's own normal starting-pawn generation once per required
-    /// pawn and accepts the result, the same generation vanilla uses - Just Start only skips
-    /// showing the player the picking/rerolling screen.
+    /// Generates the scenario's pawn roles once each, with no reroll screen. Without a PlayerColonist role the
+    /// scenario's own starting pawns are kept.
     /// </summary>
     public static class StartingPawnGenerator
     {
-        public static List<Pawn> GenerateColonists(ScenarioDef scenarioDef, JustStartScenarioExtension ext, Random rng)
+        private static readonly Func<PawnGenerationRequest> DefaultStartingPawnRequest =
+            AccessTools.MethodDelegate<Func<PawnGenerationRequest>>(
+                AccessTools.PropertyGetter(typeof(StartingPawnUtility), "DefaultStartingPawnRequest"));
+
+        public static List<Pawn> GenerateColonists(JustStartScenarioExtension? ext)
         {
             var colonists = new List<Pawn>();
+            var roles = ext?.pawnRoles?.Where(r => r.faction == PawnRoleFaction.PlayerColonist).ToList();
+            if (ext == null || roles == null || roles.Count == 0)
+                return colonists;
 
-            var explicitRoles = ext?.pawnRoles?.Where(r => r.faction == PawnRoleFaction.PlayerColonist).ToList();
-            if (explicitRoles == null || explicitRoles.Count == 0)
+            // Discards the scenario's own pawns from Scenario.PostIdeoChosen, with their families and possessions.
+            StartingPawnUtility.ClearAllStartingPawns();
+
+            var counts = roles.Select(r => r.ResolveCount()).ToList();
+            var xenotypes = AssignColonistXenotypes(roles, counts, ext.xenotypeRules);
+
+            for (int r = 0; r < roles.Count; r++)
             {
-                // No explicit roles declared: defer entirely to vanilla scenario-driven starting
-                // pawn generation (ScenPart_ConfigPage_ConfigureStartingPawns etc.), just without
-                // presenting the picker/reroll page. StartingPawnUtility already drives this for
-                // the normal new-game flow; Just Start's page patch (see Patches/) calls the same
-                // generation entry points and skips straight past the UI.
-                return colonists; // populated by the page-patch calling vanilla generation directly
-            }
-
-            foreach (var role in explicitRoles)
-            {
-                var xenoAssignment = ModsConfig.BiotechActive
-                    ? XenotypeSelector.AssignForRole(role.xenotypeRules ?? ext.xenotypeRules, role.count, rng)
-                    : Enumerable.Repeat<XenotypeDef>(null, role.count).ToList();
-
-                for (int i = 0; i < role.count; i++)
+                PawnRole role = roles[r];
+                for (int i = 0; i < counts[r]; i++)
                 {
-                    var request = new PawnGenerationRequest(
-                        kind: role.kindDef ?? PawnKindDefOf.Colonist,
-                        faction: Faction.OfPlayer,
-                        context: PawnGenerationContext.PlayerStarter,
-                        forceGenerateNewPawn: true,
-                        fixedGender: null);
+                    // Vanilla's request carries the player faction's own pawn kind and any mod patches to it.
+                    PawnGenerationRequest request = DefaultStartingPawnRequest();
+                    if (role.kindDef != null)
+                        request.KindDef = role.kindDef;
+                    Pawn pawn = Generate(request, role, xenotypes[r][i]);
 
-                    if (xenoAssignment[i] != null)
-                        request.ForcedXenotype = xenoAssignment[i];
+                    // Mirrors StartingPawnUtility.NewGeneratedStartingPawn; map gen reads startingPossessions[pawn] for every starting pawn.
+                    pawn.relations.everSeenByPlayer = true;
+                    PawnComponentsUtility.AddComponentsForSpawn(pawn);
+                    StartingPawnUtility.GeneratePossessions(pawn);
+                    if (!role.useDefaultVanillaGear)
+                        Find.GameInitData.startingPossessions[pawn].Clear();
 
-                    var pawn = PawnGenerator.GeneratePawn(request);
-
-                    if (!role.useDefaultVanillaGear || role.fixedEquipment != null)
-                        ApplyFixedEquipment(pawn, role.fixedEquipment);
-
+                    ApplyGear(pawn, role);
                     colonists.Add(pawn);
                 }
             }
@@ -60,40 +56,31 @@ namespace JustStart
             return colonists;
         }
 
-        public static List<(Pawn pawn, PawnRole role)> GenerateNonColonistRoles(JustStartScenarioExtension ext, Random rng)
+        public static List<(Pawn pawn, PawnRole role)> GenerateNonColonistRoles(JustStartScenarioExtension? ext)
         {
             var results = new List<(Pawn, PawnRole)>();
             if (ext?.pawnRoles == null) return results;
 
             foreach (var role in ext.pawnRoles.Where(r => r.faction != PawnRoleFaction.PlayerColonist))
             {
-                var xenoAssignment = ModsConfig.BiotechActive
-                    ? XenotypeSelector.AssignForRole(role.xenotypeRules, role.count, rng)
-                    : Enumerable.Repeat<XenotypeDef>(null, role.count).ToList();
+                Faction? faction = FactionFor(role);
+                if (faction == null)
+                {
+                    Log.Warning($"[JustStart] PawnRole '{role.id}' has no suitable faction in this world; skipping it.");
+                    continue;
+                }
 
-                Faction faction = role.faction == PawnRoleFaction.HostileOnMap
-                    ? Find.FactionManager.RandomEnemyFaction()
-                    : Faction.OfPlayer;
-
-                for (int i = 0; i < role.count; i++)
+                int count = role.ResolveCount();
+                var xenotypes = XenotypeSelector.Assign(role.xenotypeRules, count);
+                for (int i = 0; i < count; i++)
                 {
                     var request = new PawnGenerationRequest(
-                        kind: role.kindDef,
+                        kind: role.kindDef ?? faction.def.basicMemberKind,
                         faction: faction,
                         context: PawnGenerationContext.NonPlayer,
                         forceGenerateNewPawn: true);
-
-                    if (xenoAssignment[i] != null)
-                        request.ForcedXenotype = xenoAssignment[i];
-
-                    var pawn = PawnGenerator.GeneratePawn(request);
-
-                    if (role.faction == PawnRoleFaction.PlayerPrisoner)
-                        pawn.guest?.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner);
-
-                    if (!role.useDefaultVanillaGear || role.fixedEquipment != null)
-                        ApplyFixedEquipment(pawn, role.fixedEquipment);
-
+                    Pawn pawn = Generate(request, role, xenotypes[i]);
+                    ApplyGear(pawn, role);
                     results.Add((pawn, role));
                 }
             }
@@ -101,26 +88,84 @@ namespace JustStart
             return results;
         }
 
-        private static void ApplyFixedEquipment(Pawn pawn, List<ThingDefCountClass> equipment)
+        // Roles with their own rule resolve it alone; the rest share one assignment from the scenario-wide rule.
+        private static List<List<XenotypeDef?>> AssignColonistXenotypes(List<PawnRole> roles, List<int> counts, XenotypeRuleSet? scenarioRule)
         {
-            pawn.equipment?.DestroyAllEquipment();
-            pawn.apparel?.DestroyAll();
-            pawn.inventory?.DestroyAll();
+            int sharedCount = Enumerable.Range(0, roles.Count).Where(r => roles[r].xenotypeRules == null).Sum(r => counts[r]);
+            List<XenotypeDef?> shared = XenotypeSelector.Assign(scenarioRule, sharedCount);
 
-            if (equipment == null) return;
-
-            foreach (var entry in equipment)
+            var result = new List<List<XenotypeDef?>>(roles.Count);
+            int next = 0;
+            for (int r = 0; r < roles.Count; r++)
             {
-                var thing = ThingMaker.MakeThing(entry.thingDef, GenStuff.DefaultStuffFor(entry.thingDef));
-                thing.stackCount = entry.count;
-
-                if (thing is Apparel apparel)
-                    pawn.apparel.Wear(apparel, false);
-                else if (thing.def.IsWeapon && pawn.equipment != null)
-                    pawn.equipment.AddEquipment((ThingWithComps)thing);
+                if (roles[r].xenotypeRules != null)
+                    result.Add(XenotypeSelector.Assign(roles[r].xenotypeRules, counts[r]));
                 else
-                    pawn.inventory.innerContainer.TryAdd(thing);
+                {
+                    result.Add(shared.GetRange(next, counts[r]));
+                    next += counts[r];
+                }
             }
+            return result;
+        }
+
+        private static Pawn Generate(PawnGenerationRequest request, PawnRole role, XenotypeDef? xenotype)
+        {
+            role.ApplyConstraints(ref request);
+            if (xenotype != null)
+                request.ForcedXenotype = xenotype;
+            return PawnGenerator.GeneratePawn(request);
+        }
+
+        // The role's factionDef, else the kind's own faction, if it suits; otherwise a random hostile (HostileOnMap) or non-player (PlayerPrisoner) humanlike faction.
+        private static Faction? FactionFor(PawnRole role)
+        {
+            bool hostile = role.faction == PawnRoleFaction.HostileOnMap;
+            bool Suits(Faction f) => !f.IsPlayer && !f.defeated && f.def.humanlikeFaction && (!hostile || f.HostileTo(Faction.OfPlayer));
+
+            FactionDef? def = role.factionDef ?? role.kindDef?.defaultFactionDef;
+            Faction? own = def != null ? Find.FactionManager.FirstFactionOfDef(def) : null;
+            if (own != null && Suits(own))
+                return own;
+            return Find.FactionManager.AllFactionsVisible.Where(Suits).RandomElementWithFallback();
+        }
+
+        // Without default gear the pawn keeps only fixedEquipment; with it, fixedEquipment is added on top. A weaponOptions pick then replaces any weapon.
+        private static void ApplyGear(Pawn pawn, PawnRole role)
+        {
+            if (!role.useDefaultVanillaGear)
+            {
+                pawn.equipment?.DestroyAllEquipment();
+                pawn.apparel?.DestroyAll();
+                pawn.inventory?.DestroyAll();
+            }
+
+            if (role.fixedEquipment != null)
+                foreach (var entry in role.fixedEquipment)
+                    foreach (Thing thing in ThingFactory.Make(entry))
+                        Give(pawn, thing);
+
+            if (!role.weaponOptions.NullOrEmpty() && pawn.equipment != null)
+            {
+                var things = ThingFactory.Make(role.weaponOptions!.RandomElement());
+                if (things.Count > 0)
+                {
+                    pawn.equipment.DestroyAllEquipment();
+                    foreach (Thing thing in things)
+                        Give(pawn, thing);
+                }
+            }
+        }
+
+        // Worn or equipped when the slot is free, otherwise carried in inventory.
+        private static void Give(Pawn pawn, Thing thing)
+        {
+            if (thing is Apparel apparel && pawn.apparel != null && pawn.apparel.CanWearWithoutDroppingAnything(apparel.def))
+                pawn.apparel.Wear(apparel, dropReplacedApparel: false);
+            else if (thing.def.IsWeapon && thing is ThingWithComps weapon && pawn.equipment != null && pawn.equipment.Primary == null)
+                pawn.equipment.AddEquipment(weapon);
+            else
+                pawn.inventory?.innerContainer.TryAdd(thing);
         }
     }
 }

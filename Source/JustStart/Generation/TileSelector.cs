@@ -8,63 +8,66 @@ namespace JustStart
 {
     public class TileSelectionFailure
     {
-        public string Reason;
+        public string Reason = string.Empty;
         public List<string> UnsatisfiedConstraintDescriptions = new List<string>();
     }
 
     /// <summary>
-    /// Candidate-based starting-tile selection (Section 7): enumerate tiles the game itself
-    /// considers valid for a new settlement, narrow by the scenario's Just Start constraints,
-    /// then pick randomly among what remains. Never falls back to an unconstrained tile if a
-    /// required constraint can't be met - see Section 7 "zero valid candidates".
+    /// Picks a random starting tile that vanilla accepts for a new settlement and that meets the scenario's
+    /// tile constraints. Never falls back to an unconstrained tile.
     /// </summary>
     public static class TileSelector
     {
-        public static bool TryFindTile(ScenarioDef scenarioDef, JustStartScenarioExtension ext,
-            out PlanetTile chosenTile, out TileSelectionFailure failure)
+        public static bool TryFindTile(ScenarioDef? scenarioDef, JustStartScenarioExtension? ext,
+            out PlanetTile chosenTile, out TileSelectionFailure? failure)
         {
-            var world = Find.World;
-            var context = new TileSelectionContext { World = world, Scenario = scenarioDef.scenario };
+            World world = Find.World;
+            var context = new TileSelectionContext { World = world, Scenario = scenarioDef?.scenario ?? Find.Scenario };
 
-            List<TileConstraint> activeConstraints = new List<TileConstraint>();
-            if (ext?.tileConstraints != null)
-            {
-                bool curatedGateOpen = !ext.curatedRestrictionOnly || JustStartMod.Settings.useCuratedVanillaRestrictions;
-                if (curatedGateOpen)
-                    activeConstraints.AddRange(ext.tileConstraints);
-            }
+            bool constraintsApply = ext?.tileConstraints != null
+                && (!ext.curatedRestrictionOnly || JustStartMod.Settings.useCuratedVanillaRestrictions);
+            List<TileConstraint> constraints = constraintsApply ? ext!.tileConstraints! : new List<TileConstraint>();
 
-            var candidates = new List<PlanetTile>();
+            // Vanilla's random start skips canAutoChoose=false biomes (sea ice, glacial plain); allowAnyBiome or a biome allow list opts in.
+            bool allowAnyBiome = ext?.allowAnyBiome == true;
+            var listedBiomes = new HashSet<BiomeDef>(constraints.OfType<TileConstraint_Biome>()
+                .Where(c => c.allowedBiomes != null)
+                .SelectMany(c => c.allowedBiomes!));
+
+            // Lazy Fisher-Yates: tiles are tried in uniformly random order and the first that passes is a uniform pick among all valid tiles.
+            PlanetLayer surface = world.grid.Surface;
             int tilesCount = world.grid.TilesCount;
+            int[] order = new int[tilesCount];
+            for (int i = 0; i < tilesCount; i++)
+                order[i] = i;
+
             for (int i = 0; i < tilesCount; i++)
             {
-                var tile = new PlanetTile(i, world.grid.Surface);
+                int j = Rand.RangeInclusive(i, tilesCount - 1);
+                (order[i], order[j]) = (order[j], order[i]);
+                var tile = new PlanetTile(order[i], surface);
 
-                // Vanilla settlement-site validity (not ocean/lake, not impassable, not already
-                // occupied, etc.) - reuse the game's own check rather than reimplementing it.
+                // Cheap biome and constraint checks run before vanilla's settlement check, which looks up world objects.
+                BiomeDef biome = world.grid[tile].PrimaryBiome;
+                if (!biome.canAutoChoose && !allowAnyBiome && !listedBiomes.Contains(biome))
+                    continue;
+                if (!constraints.All(c => c.IsSatisfiedBy(tile, context)))
+                    continue;
                 if (!TileFinder.IsValidTileForNewSettlement(tile))
                     continue;
 
-                if (activeConstraints.Count > 0 && !activeConstraints.All(c => c.IsSatisfiedBy(tile, context)))
-                    continue;
-
-                candidates.Add(tile);
+                chosenTile = tile;
+                failure = null;
+                return true;
             }
 
-            if (candidates.Count == 0)
+            chosenTile = PlanetTile.Invalid;
+            failure = new TileSelectionFailure
             {
-                chosenTile = PlanetTile.Invalid;
-                failure = new TileSelectionFailure
-                {
-                    Reason = "JustStart.Error.NoValidTile".Translate(scenarioDef.LabelCap),
-                    UnsatisfiedConstraintDescriptions = activeConstraints.Select(c => c.Describe()).ToList(),
-                };
-                return false;
-            }
-
-            chosenTile = candidates.RandomElement();
-            failure = null;
-            return true;
+                Reason = "JustStart_ErrorNoValidTile".Translate(scenarioDef?.LabelCap ?? Find.Scenario.name),
+                UnsatisfiedConstraintDescriptions = constraints.Select(c => c.Describe()).ToList(),
+            };
+            return false;
         }
     }
 }

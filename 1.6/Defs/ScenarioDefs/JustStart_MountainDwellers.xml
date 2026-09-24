@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!--
+    Mountain Dwellers - seven colonists and a loaded pack animal, forced onto mountainous terrain.
+    Demonstrates: a hilliness restriction, a multi-pawn colonist role, and animal carried inventory.
+    Uses the Medieval 2 player kingdom if that mod is loaded, an ordinary industrial start otherwise.
+  -->
+  <ScenarioDef ParentName="ScenarioBase">
+    <defName>JustStart_MountainDwellers</defName>
+    <label>Mountain Dwellers</label>
+    <description>Seven souls, a loaded pack animal, and a mountain that will have to do.</description>
+    <scenario>
+      <summary>Seven colonists and a loaded pack animal in the mountains.</summary>
+      <name>Mountain Dwellers</name>
+      <parts>
+        <li Class="ScenPart_PlayerPawnsArriveMethod">
+          <def>PlayerPawnsArriveMethod</def>
+          <method>Standing</method>
+        </li>
+        <li Class="ScenPart_GameStartDialog">
+          <def>GameStartDialog</def>
+          <text>Seven of you set out for the peaks, with a pack animal carrying everything you could load onto it.\n\nSomewhere up there, in the rock, you will dig in and make a home.</text>
+          <closeSound>GameStartSting</closeSound>
+        </li>
+      </parts>
+    </scenario>
+    <modExtensions>
+      <li Class="JustStart.JustStartScenarioExtension">
+        <preferredPlayerFactions>
+          <li>VFEM2_PlayerKingdom</li>
+        </preferredPlayerFactions>
+        <tileConstraints>
+          <li Class="JustStart.TileConstraint_Hilliness">
+            <allowed>
+              <li>Mountainous</li>
+            </allowed>
+          </li>
+        </tileConstraints>
+        <pawnRoles>
+          <li>
+            <id>colonists</id>
+            <count>7</count>
+            <faction>PlayerColonist</faction>
+          </li>
+        </pawnRoles>
+        <animalRoles>
+          <li>
+            <id>pack_animal</id>
+            <count>1</count>
+            <requirePackAnimal>true</requirePackAnimal>
+            <carriedInventory>
+              <Pemmican>50</Pemmican>
+              <MedicineHerbal>10</MedicineHerbal>
+              <WoodLog>75</WoodLog>
+            </carriedInventory>
+          </li>
+        </animalRoles>
+      </li>
+    </modExtensions>
+  </ScenarioDef>
+
+</Defs>

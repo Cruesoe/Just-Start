@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using RimWorld;
 using Verse;
 
 namespace JustStart
@@ -11,23 +12,17 @@ namespace JustStart
         public List<string> Warnings = new List<string>();
     }
 
-    /// <summary>
-    /// Runs before Just Start commits to a generated start. Checks everything that can be
-    /// checked without a generated world (Def references, internal rule coherence); the
-    /// "zero valid tiles in this generated world" case is a separate, later, recoverable
-    /// failure surfaced by TileSelector against the actual World.
-    /// </summary>
+    /// <summary>Checks a scenario's rules for what can be checked without a world; TileSelector reports a world with no valid tile.</summary>
     public static class ScenarioValidator
     {
-        public static ValidationResult Validate(ScenarioDef scenarioDef, JustStartScenarioExtension ext)
+        public static ValidationResult Validate(ScenarioDef scenarioDef, JustStartScenarioExtension? ext)
         {
             var result = new ValidationResult();
             if (ext == null) return result;
 
-            foreach (var msg in ext.ValidateReferences(scenarioDef))
-                result.Errors.Add(msg);
+            result.Errors.AddRange(ext.ValidateReferences(scenarioDef));
 
-            if (ext.ideologyRules?.mode is IdeologyMode.Fixed or IdeologyMode.Fluid && !ModsConfig.IdeologyActive)
+            if (ext.ideologyRules != null && !ModsConfig.IdeologyActive)
                 result.Warnings.Add($"[{scenarioDef.defName}] Ideology rule will be skipped: Ideology DLC inactive.");
 
             bool anyXenotypeRule = ext.xenotypeRules != null

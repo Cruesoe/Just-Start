@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -6,59 +5,42 @@ using Verse;
 
 namespace JustStart
 {
-    /// <summary>
-    /// Resolves which XenotypeDef each PlayerColonist pawn generation request should use,
-    /// given a scenario-wide and/or per-role XenotypeRuleSet. Biotech-only; callers must check
-    /// ModsConfig.BiotechActive before using this.
-    /// </summary>
+    /// <summary>Resolves a XenotypeRuleSet into one xenotype per pawn; a null entry leaves the choice to vanilla generation.</summary>
     public static class XenotypeSelector
     {
-        public static List<XenotypeDef> AllEligible() =>
-            DefDatabase<XenotypeDef>.AllDefsListForReading.Where(x => !x.doNotGenerateNaturally).ToList();
-
-        /// <summary>
-        /// Builds a per-pawn xenotype assignment for a role. SameForAll is resolved once and
-        /// applied to every slot; Required guarantees at least requiredCount slots get one of
-        /// the specified xenotypes, remaining slots fall back to Any.
-        /// </summary>
-        public static List<XenotypeDef> AssignForRole(XenotypeRuleSet rule, int count, Random rng)
+        /// <summary>All null without Biotech, without a rule, or in Any mode.</summary>
+        public static List<XenotypeDef?> Assign(XenotypeRuleSet? rule, int count)
         {
-            var all = AllEligible();
-            var result = new List<XenotypeDef>(count);
-
-            if (rule == null || rule.mode == XenotypeRuleMode.Any)
+            var result = new List<XenotypeDef?>(count);
+            if (!ModsConfig.BiotechActive || rule == null || rule.mode == XenotypeRuleMode.Any)
             {
-                for (int i = 0; i < count; i++) result.Add(null); // null => let vanilla PawnGenerator decide
+                result.AddRange(Enumerable.Repeat<XenotypeDef?>(null, count));
                 return result;
             }
 
-            if (rule.mode == XenotypeRuleMode.SameForAll)
+            List<XenotypeDef> all = DefDatabase<XenotypeDef>.AllDefsListForReading;
+            switch (rule.mode)
             {
-                var pool = rule.EligiblePoolFor(all);
-                var chosen = pool.Count > 0 ? pool[rng.Next(pool.Count)] : null;
-                for (int i = 0; i < count; i++) result.Add(chosen);
-                return result;
+                case XenotypeRuleMode.SameForAll:
+                    result.AddRange(Enumerable.Repeat<XenotypeDef?>(rule.EligiblePoolFor(all).RandomElementWithFallback(), count));
+                    break;
+                case XenotypeRuleMode.Fixed:
+                    result.AddRange(Enumerable.Repeat<XenotypeDef?>(rule.xenotypes?.FirstOrDefault(), count));
+                    break;
+                case XenotypeRuleMode.Required:
+                    // requiredCount pawns, at random positions, get a listed xenotype; the rest are left to vanilla.
+                    List<XenotypeDef> required = rule.xenotypes.NullOrEmpty() ? all : rule.xenotypes!;
+                    for (int i = 0; i < count; i++)
+                        result.Add(i < rule.requiredCount ? required.RandomElement() : null);
+                    result.Shuffle();
+                    break;
+                default:
+                    // AllowedPool, Excluded and Random pick independently per pawn.
+                    List<XenotypeDef> pool = rule.EligiblePoolFor(all);
+                    for (int i = 0; i < count; i++)
+                        result.Add(pool.RandomElementWithFallback());
+                    break;
             }
-
-            if (rule.mode == XenotypeRuleMode.Fixed)
-            {
-                var fixedXeno = rule.xenotypes?.FirstOrDefault();
-                for (int i = 0; i < count; i++) result.Add(fixedXeno);
-                return result;
-            }
-
-            if (rule.mode == XenotypeRuleMode.Required)
-            {
-                var pool = rule.xenotypes ?? all;
-                for (int i = 0; i < count; i++)
-                    result.Add(i < rule.requiredCount ? pool[rng.Next(pool.Count)] : null);
-                return result;
-            }
-
-            // AllowedPool / Excluded: independently pick per pawn from the resolved pool.
-            var eligiblePool = rule.EligiblePoolFor(all);
-            for (int i = 0; i < count; i++)
-                result.Add(eligiblePool.Count > 0 ? eligiblePool[rng.Next(eligiblePool.Count)] : null);
             return result;
         }
     }

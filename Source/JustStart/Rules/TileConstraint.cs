@@ -1,27 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
+using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
 namespace JustStart
 {
-    /// <summary>
-    /// Context passed to tile constraints while evaluating candidates. Kept minimal and
-    /// extensible so future constraint types (coast, rivers, faction proximity, ...) can
-    /// read whatever world/tile state they need without changing the constraint contract.
-    /// </summary>
+    /// <summary>World and scenario state passed to tile constraints while evaluating candidates.</summary>
     public class TileSelectionContext
     {
-        public World World;
-        public Scenario Scenario;
+        public World World = null!;
+        public Scenario Scenario = null!;
     }
 
-    /// <summary>
-    /// Base class for a single, composable starting-tile rule. Third-party XML declares
-    /// constraints via the Class="..." XML list idiom (same pattern vanilla uses for
-    /// ScenParts/PatchOperations), so new constraint types added later - by this mod or by
-    /// other mods - slot in without touching the selection pipeline.
-    /// </summary>
+    /// <summary>A single starting-tile rule, declared in XML with Class="..." so other mods can add their own subclasses.</summary>
     public abstract class TileConstraint
     {
         /// <summary>Return false to reject the tile. Do not throw for "just doesn't match".</summary>
@@ -30,19 +22,15 @@ namespace JustStart
         /// <summary>Human-readable description used in "no valid tile" diagnostics.</summary>
         public abstract string Describe();
 
-        /// <summary>
-        /// Structural validation independent of any generated world (e.g. "allowedBiomes is
-        /// non-empty and every BiomeDef reference resolved"). Called by ScenarioValidator
-        /// before the tile-selection pipeline ever runs.
-        /// </summary>
+        /// <summary>Checks the rule itself, without a world; called by ScenarioValidator before tile selection.</summary>
         public virtual IEnumerable<string> ValidateReferences() => Enumerable.Empty<string>();
     }
 
     /// <summary>Restricts starting biome to an allowed pool and/or excludes a pool.</summary>
     public class TileConstraint_Biome : TileConstraint
     {
-        public List<BiomeDef> allowedBiomes;
-        public List<BiomeDef> excludedBiomes;
+        public List<BiomeDef>? allowedBiomes;
+        public List<BiomeDef>? excludedBiomes;
 
         public override bool IsSatisfiedBy(PlanetTile tile, TileSelectionContext context)
         {
@@ -57,9 +45,9 @@ namespace JustStart
         public override string Describe()
         {
             if (allowedBiomes != null && allowedBiomes.Count > 0)
-                return "JustStart.Constraint.Biome.Allowed".Translate(allowedBiomes.Select(b => b.label).ToCommaList());
+                return "JustStart_ConstraintBiomeAllowed".Translate(allowedBiomes.Select(b => b.label).ToCommaList());
             if (excludedBiomes != null && excludedBiomes.Count > 0)
-                return "JustStart.Constraint.Biome.Excluded".Translate(excludedBiomes.Select(b => b.label).ToCommaList());
+                return "JustStart_ConstraintBiomeExcluded".Translate(excludedBiomes.Select(b => b.label).ToCommaList());
             return GetType().Name;
         }
 
@@ -70,10 +58,30 @@ namespace JustStart
         }
     }
 
+    /// <summary>Restricts starting tile by its average yearly temperature (Tile.temperature, in Celsius).</summary>
+    public class TileConstraint_Temperature : TileConstraint
+    {
+        public FloatRange averageTemperature = new FloatRange(-999f, 999f);
+
+        public override bool IsSatisfiedBy(PlanetTile tile, TileSelectionContext context) =>
+            averageTemperature.Includes(context.World.grid[tile].temperature);
+
+        public override string Describe() =>
+            "JustStart_ConstraintTemperature".Translate(
+                averageTemperature.min.ToStringTemperature("F0"),
+                averageTemperature.max.ToStringTemperature("F0"));
+
+        public override IEnumerable<string> ValidateReferences()
+        {
+            if (averageTemperature.max < averageTemperature.min)
+                yield return $"TileConstraint_Temperature has max below min ({averageTemperature}).";
+        }
+    }
+
     /// <summary>Restricts starting terrain by Hilliness (e.g. requiring Mountainous terrain).</summary>
     public class TileConstraint_Hilliness : TileConstraint
     {
-        public List<Hilliness> allowed;
+        public List<Hilliness>? allowed;
 
         public override bool IsSatisfiedBy(PlanetTile tile, TileSelectionContext context)
         {
@@ -82,7 +90,7 @@ namespace JustStart
         }
 
         public override string Describe() =>
-            "JustStart.Constraint.Hilliness.Allowed".Translate(allowed.Select(h => h.ToString()).ToCommaList());
+            "JustStart_ConstraintHillinessAllowed".Translate((allowed ?? new List<Hilliness>()).Select(h => h.GetLabel()).ToCommaList(useAnd: false));
 
         public override IEnumerable<string> ValidateReferences()
         {

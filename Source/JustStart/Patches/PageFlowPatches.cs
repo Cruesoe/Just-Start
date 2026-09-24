@@ -7,46 +7,48 @@ using Verse;
 namespace JustStart
 {
     /// <summary>
-    /// VERIFICATION NOTE: this file could not be compiled or run against the real game in the
-    /// authoring environment (no local RimWorld install). Page_CreateWorldParams / PageUtility
-    /// member names/signatures below are based on documented RimWorld 1.6 modding knowledge and
-    /// must be re-checked with ILSpy/dnSpy against the installed Assembly-CSharp.dll before this
-    /// mod ships. If a member name has drifted, this patch will simply fail to apply (Harmony
-    /// logs an error) rather than corrupting a save - it only ever runs at the pre-game screens.
-    ///
-    /// Insertion point chosen per Section 2: after the player finishes Page_CreateWorldParams
-    /// (world settings configured, world not yet generated) we add a "Just Start" button next to
-    /// "Start" / "Next". Clicking it lets the normal world-generation LongEventHandler run, then
-    /// invokes JustStartFlow.Run() instead of advancing to Page_SelectStartingSite /
-    /// Page_ConfigureStartingPawns.
+    /// Adds a "Just Start" button above Page_CreateWorldParams's own "Generate" button. It runs the same world
+    /// generation as Generate (CanDoNext), then the Page_SelectStartingSite patches below run JustStartFlow instead of showing that page.
     /// </summary>
     [HarmonyPatch(typeof(Page_CreateWorldParams), "DoWindowContents")]
-    public static class Patch_Page_CreateWorldParams_AddJustStartButton
+    public static class Patch_Page_CreateWorldParams_DoWindowContents_AddJustStartButton
     {
+        private static readonly MethodInfo CanDoNextMethod = AccessTools.Method(typeof(Page_CreateWorldParams), "CanDoNext");
+        private static readonly AccessTools.FieldRef<Vector2> BottomButSizeRef =
+            AccessTools.StaticFieldRefAccess<Vector2>(AccessTools.Field(typeof(Page), "BottomButSize"));
+
         public static void Postfix(Page_CreateWorldParams __instance, Rect rect)
         {
-            var buttonRect = new Rect(rect.x, rect.yMax - 38f - 45f, 160f, 38f);
-            if (Widgets.ButtonText(buttonRect, "JustStart.Button.JustStart".Translate()))
+            Vector2 bottomButSize = BottomButSizeRef();
+            float generateButtonY = rect.y + rect.height - Page.BottomButHeight;
+            // 17f matches Page.GetMainRect's own bottom margin, so this row sits flush above the content area.
+            Rect buttonRect = new Rect(rect.x + rect.width - bottomButSize.x, generateButtonY - 17f - bottomButSize.y, bottomButSize.x, bottomButSize.y);
+
+            if (Widgets.ButtonText(buttonRect, "JustStart_ButtonJustStart".Translate()))
             {
-                var canDoNext = (bool)AccessTools.Method(typeof(Page_CreateWorldParams), "CanDoNext")
-                    ?.Invoke(__instance, null);
-                if (canDoNext != false)
+                // Right-click opens the mod settings instead.
+                if (Event.current.button == 1)
+                    Find.WindowStack.Add(new Dialog_ModSettings(JustStartMod.Instance));
+                else
                 {
                     JustStartGameStartHook.PendingAutoStart = true;
-                    AccessTools.Method(typeof(Page), "DoNext")?.Invoke(__instance, null);
+                    CanDoNextMethod.Invoke(__instance, null);
+                    // CanDoNext returns false either way; only a queued world generation keeps the flag armed.
+                    if (!LongEventHandler.AnyEventNowOrWaiting)
+                        JustStartGameStartHook.PendingAutoStart = false;
                 }
             }
+            TooltipHandler.TipRegion(buttonRect, "JustStart_ButtonJustStartTooltip".Translate());
         }
     }
 
     /// <summary>
-    /// After world generation completes and the game would normally show
-    /// Page_SelectStartingSite, intercept and run the automated flow instead. Implemented as a
-    /// prefix on the page's constructor/PreOpen that, if JustStartGameStartHook.PendingAutoStart
-    /// is set, runs JustStartFlow.Run() and closes the window stack rather than displaying it.
+    /// World generation's completion callback adds Page_SelectStartingSite and then closes the world settings page,
+    /// so the flow can't run inside PreOpen. PreOpen is skipped (so the world map is never shown) and the flow runs
+    /// on the page's first GUI frame instead.
     /// </summary>
     [HarmonyPatch(typeof(Page_SelectStartingSite), "PreOpen")]
-    public static class Patch_Page_SelectStartingSite_SkipIfAutoStart
+    public static class Patch_Page_SelectStartingSite_PreOpen_SkipIfAutoStart
     {
         public static bool Prefix(Page_SelectStartingSite __instance)
         {
@@ -54,12 +56,49 @@ namespace JustStart
                 return true;
 
             JustStartGameStartHook.PendingAutoStart = false;
-            JustStartFlow.Run(onFailure: () => Find.WindowStack.Add(__instance));
+            JustStartGameStartHook.AutoStartPage = __instance;
+            JustStartGameStartHook.FlowRan = false;
             return false;
         }
     }
 
-    /// <summary>Spawns queued non-colonist pawns (The Prisoner's guard, etc.) once the starting map exists.</summary>
+    [HarmonyPatch(typeof(Page_SelectStartingSite), "ExtraOnGUI")]
+    public static class Patch_Page_SelectStartingSite_ExtraOnGUI_RunFlow
+    {
+        public static bool Prefix(Page_SelectStartingSite __instance)
+        {
+            if (JustStartGameStartHook.AutoStartPage != __instance)
+                return true;
+
+            if (!JustStartGameStartHook.FlowRan)
+            {
+                JustStartGameStartHook.FlowRan = true;
+                __instance.Close(doCloseSound: false);
+                JustStartFlow.Run(onFailure: () => Find.WindowStack.Add(__instance.prev));
+            }
+            return false;
+        }
+    }
+
+    /// <summary>Stops the hidden page writing the world selection over Just Start's chosen tile.</summary>
+    [HarmonyPatch(typeof(Page_SelectStartingSite), "DoWindowContents")]
+    public static class Patch_Page_SelectStartingSite_DoWindowContents_SkipIfAutoStart
+    {
+        public static bool Prefix(Page_SelectStartingSite __instance) =>
+            JustStartGameStartHook.AutoStartPage != __instance;
+    }
+
+    [HarmonyPatch(typeof(Page_SelectStartingSite), "PostClose")]
+    public static class Patch_Page_SelectStartingSite_PostClose_ReleaseAutoStartPage
+    {
+        public static void Postfix(Page_SelectStartingSite __instance)
+        {
+            if (JustStartGameStartHook.AutoStartPage == __instance)
+                JustStartGameStartHook.AutoStartPage = null;
+        }
+    }
+
+    /// <summary>Spawns queued non-colonist pawns, animals and map items once the starting map exists.</summary>
     [HarmonyPatch(typeof(Map), "FinalizeInit")]
     public static class Patch_Map_FinalizeInit_SpawnJustStartPawns
     {
@@ -70,8 +109,25 @@ namespace JustStart
         }
     }
 
+    /// <summary>Adds the scenario's Just Start rules to its info panel text, after vanilla's part summaries.</summary>
+    [HarmonyPatch(typeof(Scenario), "GetFullInformationText")]
+    public static class Patch_Scenario_GetFullInformationText_AddRules
+    {
+        public static void Postfix(Scenario __instance, ref string __result)
+        {
+            JustStartScenarioExtension? ext = ScenarioLookup.ExtensionFor(__instance);
+            if (ext != null)
+                __result = ScenarioRulesSummary.AppendTo(__instance, ext, __result);
+        }
+    }
+
     public static class JustStartGameStartHook
     {
         public static bool PendingAutoStart;
+
+        /// <summary>The hidden Page_SelectStartingSite the flow is running behind; cleared when it closes.</summary>
+        public static Page_SelectStartingSite? AutoStartPage;
+
+        public static bool FlowRan;
     }
 }

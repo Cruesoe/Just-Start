@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -7,25 +8,20 @@ using Verse;
 namespace JustStart
 {
     /// <summary>
-    /// Orchestrates the "Just Start" action once the player has finished configuring scenario,
-    /// storyteller, difficulty, and world generation. Everything below this point (tile choice,
-    /// pawn/ideology/animal generation) is automated; nothing above it is touched or bypassed.
-    ///
-    /// This class is intentionally UI-agnostic: it is invoked by a Harmony patch (see
-    /// Patches/PageFlowPatches.cs) that adds the "Just Start" button to the appropriate vanilla
-    /// page and wires its click to Run(). The exact page/button hookup is the part of this mod
-    /// most likely to need adjustment against the real Assembly-CSharp.dll - see
-    /// Patches/PageFlowPatches.cs for the verification note.
+    /// Runs Just Start once world generation finishes: picks the tile, season, arrival method, ideoligion,
+    /// pawns, animals and map items, then starts the game. Any failure explains why and calls onFailure.
     /// </summary>
     public static class JustStartFlow
     {
+        private static readonly AccessTools.FieldRef<ScenPart_PlayerPawnsArriveMethod, PlayerPawnsArriveMethod> ArriveMethodField =
+            AccessTools.FieldRefAccess<ScenPart_PlayerPawnsArriveMethod, PlayerPawnsArriveMethod>("method");
+
         public static void Run(Action onFailure)
         {
-            ScenarioDef scenarioDef = Find.Scenario.GetType() != null
-                ? DefDatabase<ScenarioDef>.AllDefsListForReading.FirstOrDefault(d => d.scenario == Find.Scenario)
-                : null;
+            JustStartMapSpawnQueue.Begin();
 
-            JustStartScenarioExtension ext = scenarioDef?.GetModExtension<JustStartScenarioExtension>();
+            ScenarioDef? scenarioDef = ScenarioLookup.DefFor(Find.Scenario);
+            JustStartScenarioExtension? ext = scenarioDef?.GetModExtension<JustStartScenarioExtension>();
 
             if (scenarioDef != null)
             {
@@ -34,54 +30,73 @@ namespace JustStart
                 if (!validation.IsValid)
                 {
                     Log.Error("[JustStart] Scenario validation failed:\n" + string.Join("\n", validation.Errors));
-                    Messages.Message("JustStart.Error.ValidationFailed".Translate(), MessageTypeDefOf.RejectInput, false);
-                    onFailure?.Invoke();
+                    Fail("JustStart_ErrorValidationFailed".Translate(), onFailure);
                     return;
                 }
             }
 
-            if (!TileSelector.TryFindTile(scenarioDef, ext, out PlanetTile tile, out TileSelectionFailure failure))
+            if (!TileSelector.TryFindTile(scenarioDef, ext, out PlanetTile tile, out TileSelectionFailure? failure))
             {
-                string detail = failure.UnsatisfiedConstraintDescriptions.Any()
-                    ? "\n" + string.Join("\n", failure.UnsatisfiedConstraintDescriptions)
+                string detail = failure!.UnsatisfiedConstraintDescriptions.Any()
+                    ? "\n\n" + string.Join("\n", failure.UnsatisfiedConstraintDescriptions.Select(d => "  - " + d))
                     : string.Empty;
-                Messages.Message(failure.Reason + detail, MessageTypeDefOf.RejectInput, false);
-                onFailure?.Invoke();
+                Fail(failure.Reason + detail, onFailure);
                 return;
             }
 
             Find.GameInitData.startingTile = tile;
 
-            var rng = new Random();
+            if (ext != null && !ext.startingSeasons.NullOrEmpty())
+                Find.GameInitData.startingSeason = ext.startingSeasons!.RandomElement();
+
+            if (ext != null && !ext.arrivalMethods.NullOrEmpty())
+                SetArrivalMethod(ext.arrivalMethods!.RandomElement());
 
             if (ModsConfig.IdeologyActive)
             {
-                IdeologyMode mode = ext?.ideologyRules?.mode
-                    ?? JustStartMod.Settings.defaultIdeologyMode;
-                IdeologyGenerator.ApplyMode(mode);
+                IdeologyMode mode = ext?.ideologyRules?.ResolveMode() ?? JustStartMod.Settings.defaultIdeologyMode;
+                if (!IdeologyGenerator.ApplyMode(mode, ext?.ideologyRules))
+                {
+                    Fail("JustStart_ErrorNoValidIdeo".Translate(), onFailure);
+                    return;
+                }
+                // Sets startingPawnCount and generates the scenario's starting pawns; without Ideology, world generation already did this.
+                Find.Scenario.PostIdeoChosen();
             }
 
-            var colonists = StartingPawnGenerator.GenerateColonists(scenarioDef, ext, rng);
+            var colonists = StartingPawnGenerator.GenerateColonists(ext);
             if (colonists.Count > 0)
             {
-                Find.GameInitData.startingAndOptionalPawns.Clear();
                 Find.GameInitData.startingAndOptionalPawns.AddRange(colonists);
                 Find.GameInitData.startingPawnCount = colonists.Count;
             }
-            // If no explicit pawnRoles were declared, GameInitData already holds whatever the
-            // scenario's own vanilla config-page pipeline produced; Just Start only skipped
-            // showing that page to the player (see Patches/PageFlowPatches.cs).
 
-            var nonColonistPawns = StartingPawnGenerator.GenerateNonColonistRoles(ext, rng);
-            // Hostile/prisoner pawns are spawned onto the map once map generation begins;
-            // see Patches/PageFlowPatches.cs MapGenerated postfix for where these are placed.
-            JustStartMapSpawnQueue.Enqueue(nonColonistPawns);
+            if (Find.GameInitData.startingPawnCount < 1)
+            {
+                Fail("JustStart_ErrorNoStartingPawns".Translate(), onFailure);
+                return;
+            }
 
-            var animals = AnimalGenerator.Generate(ext, rng);
-            foreach (var animal in animals)
-                Find.GameInitData.startingAndOptionalPawns.Add(animal);
+            // Non-colonist pawns, animals and map items are spawned once the map exists, by Patch_Map_FinalizeInit_SpawnJustStartPawns.
+            JustStartMapSpawnQueue.Enqueue(StartingPawnGenerator.GenerateNonColonistRoles(ext));
+            JustStartMapSpawnQueue.EnqueueAnimals(AnimalGenerator.Generate(ext));
+            JustStartMapSpawnQueue.EnqueueMapThings(ext?.mapThings);
 
             PageUtility.InitGameStart();
+        }
+
+        // Swaps in a copy of the scenario first, so the roll leaves the ScenarioDef's own scenario unchanged for later games.
+        private static void SetArrivalMethod(PlayerPawnsArriveMethod method)
+        {
+            Current.Game.Scenario = Find.Scenario.CopyForEditing();
+            foreach (var part in Find.Scenario.AllParts.OfType<ScenPart_PlayerPawnsArriveMethod>())
+                ArriveMethodField(part) = method;
+        }
+
+        private static void Fail(string message, Action onFailure)
+        {
+            onFailure();
+            Find.WindowStack.Add(new Dialog_MessageBox(message + "\n\n" + "JustStart_ErrorAdjustWorld".Translate()));
         }
     }
 }

@@ -1,5 +1,12 @@
 bin/
 obj/
 *.user
+*.suo
+*.pdb
 1.6/Assemblies/*.dll
 .vs/
+Directory.Build.props
+Directory.Build.targets
+*.slnx
+AGENTS.md
+CLAUDE.md

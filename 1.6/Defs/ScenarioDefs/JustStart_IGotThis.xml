@@ -1,24 +1,26 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
   <!--
-    I Got This - the ultimate challenge (Section 13, Scenario 3). One pawn, one pistol,
-    forced Sea Ice start. Demonstrates an exact biome restriction plus a minimal/fixed loadout.
+    I Got This - one colonist, one revolver, a forced Sea Ice landing.
+    Demonstrates: an exact biome restriction, and a fixed (non-vanilla) starting loadout.
   -->
-  <ScenarioDef>
+  <ScenarioDef ParentName="ScenarioBase">
     <defName>JustStart_IGotThis</defName>
     <label>I Got This</label>
     <description>One person. One pistol. The ice does not care.</description>
     <scenario>
-      <summary>JustStart_IGotThis</summary>
+      <summary>One colonist, one revolver, sea ice.</summary>
       <name>I Got This</name>
-      <playerFaction>
-        <factionDef>PlayerColony</factionDef>
-      </playerFaction>
       <parts>
         <li Class="ScenPart_PlayerPawnsArriveMethod">
           <def>PlayerPawnsArriveMethod</def>
           <method>Standing</method>
+        </li>
+        <li Class="ScenPart_GameStartDialog">
+          <def>GameStartDialog</def>
+          <text>You asked for the hardest drop they had. They gave you sea ice, a revolver, and nothing else.\n\nThe cold does not negotiate.</text>
+          <closeSound>GameStartSting</closeSound>
         </li>
       </parts>
     </scenario>
@@ -38,10 +40,7 @@
             <faction>PlayerColonist</faction>
             <useDefaultVanillaGear>false</useDefaultVanillaGear>
             <fixedEquipment>
-              <li>
-                <thingDef>Gun_Revolver</thingDef>
-                <count>1</count>
-              </li>
+              <Gun_Revolver>1</Gun_Revolver>
             </fixedEquipment>
           </li>
         </pawnRoles>

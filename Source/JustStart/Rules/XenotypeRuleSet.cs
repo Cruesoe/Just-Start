@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using RimWorld;
 using Verse;
 
 namespace JustStart
@@ -23,30 +24,27 @@ namespace JustStart
 
         /// <summary>Pick one eligible xenotype at random and apply it to every applicable starting colonist.</summary>
         SameForAll,
+
+        /// <summary>Each pawn gets a uniformly random xenotype from every XenotypeDef.</summary>
+        Random,
     }
 
-    /// <summary>
-    /// Biotech-only. Declares how starting-pawn xenotypes are chosen for a scenario (or a
-    /// specific pawn role - see <see cref="PawnRoleDef"/>). Never infers a biome<->xenotype
-    /// relationship; that only happens if a scenario author explicitly writes both a tile
-    /// constraint and a xenotype rule that happen to agree.
-    /// </summary>
+    /// <summary>Biotech-only. How starting-pawn xenotypes are chosen, scenario-wide or for one <see cref="PawnRole"/>.</summary>
     public class XenotypeRuleSet
     {
         public XenotypeRuleMode mode = XenotypeRuleMode.Any;
-        public List<XenotypeDef> xenotypes;
+        public List<XenotypeDef>? xenotypes;
         public int requiredCount = 1;
 
         public IEnumerable<string> ValidateReferences(int pawnCountForScope)
         {
+            // Without Biotech the rule is skipped; ScenarioValidator warns rather than failing the scenario.
             if (!ModsConfig.BiotechActive)
-            {
-                yield return "XenotypeRuleSet declared but Biotech is not active; rule will be ignored.";
                 yield break;
-            }
 
+            // SameForAll with no list picks from every xenotype.
             bool needsPool = mode is XenotypeRuleMode.AllowedPool or XenotypeRuleMode.Required
-                or XenotypeRuleMode.Fixed or XenotypeRuleMode.Excluded or XenotypeRuleMode.SameForAll;
+                or XenotypeRuleMode.Fixed or XenotypeRuleMode.Excluded;
 
             if (needsPool && (xenotypes == null || xenotypes.Count == 0))
                 yield return $"XenotypeRuleSet mode {mode} requires at least one XenotypeDef in <xenotypes>.";
@@ -68,6 +66,7 @@ namespace JustStart
             switch (mode)
             {
                 case XenotypeRuleMode.Any:
+                case XenotypeRuleMode.Random:
                     return allEligible;
                 case XenotypeRuleMode.AllowedPool:
                 case XenotypeRuleMode.Required:

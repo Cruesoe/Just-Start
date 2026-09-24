@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!--
+    The Kindred - a tribal start where all three colonists share one randomly chosen xenotype.
+    Demonstrates: the SameForAll xenotype rule. No tile restriction; any normal biome can be chosen.
+  -->
+  <ScenarioDef ParentName="ScenarioBase">
+    <defName>JustStart_TheKindred</defName>
+    <label>The Kindred</label>
+    <description>Every child of the tribe is born the same. Outsiders call it a curse. You call it kinship.</description>
+    <scenario>
+      <summary>Three tribespeople who share one random xenotype.</summary>
+      <name>The Kindred</name>
+      <playerFaction>
+        <factionDef>PlayerTribe</factionDef>
+      </playerFaction>
+      <parts>
+        <li Class="ScenPart_PlayerPawnsArriveMethod">
+          <def>PlayerPawnsArriveMethod</def>
+          <method>Standing</method>
+        </li>
+        <li Class="ScenPart_GameStartDialog">
+          <def>GameStartDialog</def>
+          <text>Three of the tribe walk together, all born of the same kin-line, all marked the same way.\n\nOutsiders call it a curse. You have only ever called it family.</text>
+          <closeSound>GameStartSting</closeSound>
+        </li>
+      </parts>
+    </scenario>
+    <modExtensions>
+      <li Class="JustStart.JustStartScenarioExtension">
+        <pawnRoles>
+          <li>
+            <id>kindred</id>
+            <count>3</count>
+            <faction>PlayerColonist</faction>
+            <xenotypeRules>
+              <mode>SameForAll</mode>
+            </xenotypeRules>
+          </li>
+        </pawnRoles>
+      </li>
+    </modExtensions>
+  </ScenarioDef>
+
+</Defs>
