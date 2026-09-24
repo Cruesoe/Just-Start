@@ -6,15 +6,13 @@
   <modVersion IgnoreIfNoMatchingField="True">260924</modVersion>
   <description>You configure the game. Just Start deals you the hand.
 
-Just Start is a controlled-random-start framework. It removes the optimisation-heavy pre-game choices (starting tile hunting, pawn rerolling) while preserving every normal choice you make about scenario, storyteller, difficulty, and world generation.
+Choose your scenario, storyteller, difficulty and world settings as normal, then click Just Start instead of Generate. The world is generated, a random starting site is picked, weighted by biome like the "Select random site" button, and you start with the scenario's colonists as they come. No site hunting, no rerolling.
 
-Scenario defines constraints. Just Start randomly selects within those constraints.
+Right-click the Just Start button for its settings:
+- Exclude extreme biomes: never start in a biome the game warns about when settling, such as ice sheet or extreme desert. Off by default.
+- Ideoligion mode: classic, random fixed, random fluid, or classic mode for every faction. Requires Ideology.
 
-After you finish configuring your world, use the Just Start button to auto-select a valid starting tile and generate your starting pawns (and, where applicable, ideology) without the usual reroll loop.
-
-Includes five example scenarios that double as a public XML framework for mod authors: The Kindred, The Prisoner, I Got This, Mountain Dwellers, and Randy&apos;s Choice.
-
-DLC-aware: works with Core alone, and gains extra capabilities when Ideology, Biotech, and Odyssey are active.</description>
+Works with any scenario, including modded ones.</description>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>

@@ -1,73 +1,81 @@
 using System.Collections.Generic;
-using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
 
 namespace JustStart
 {
-    public class TileSelectionFailure
-    {
-        public string Reason = string.Empty;
-        public List<string> UnsatisfiedConstraintDescriptions = new List<string>();
-    }
-
     /// <summary>
-    /// Picks a random starting tile that vanilla accepts for a new settlement and that meets the scenario's
-    /// tile constraints. Never falls back to an unconstrained tile.
+    /// Picks the starting tile the way vanilla's "Select random site" button does (TileFinder.RandomStartingTile): weighted by
+    /// the biome's settlementSelectionWeight and the player faction's temperature curve, skipping biomes vanilla never picks at random.
     /// </summary>
     public static class TileSelector
     {
-        public static bool TryFindTile(ScenarioDef? scenarioDef, JustStartScenarioExtension? ext,
-            out PlanetTile chosenTile, out TileSelectionFailure? failure)
+        public static bool TryFindTile(out PlanetTile chosen)
         {
-            World world = Find.World;
-            var context = new TileSelectionContext { World = world, Scenario = scenarioDef?.scenario ?? Find.Scenario };
+            WorldGrid grid = Find.WorldGrid;
+            PlanetLayer surface = grid.Surface;
+            SimpleCurve? temperatureCurve = Faction.OfPlayer.def.minSettlementTemperatureChanceCurve;
+            bool excludeExtreme = JustStartMod.Settings.excludeExtremeBiomes;
 
-            bool constraintsApply = ext?.tileConstraints != null
-                && (!ext.curatedRestrictionOnly || JustStartMod.Settings.useCuratedVanillaRestrictions);
-            List<TileConstraint> constraints = constraintsApply ? ext!.tileConstraints! : new List<TileConstraint>();
-
-            // Vanilla's random start skips canAutoChoose=false biomes (sea ice, glacial plain); allowAnyBiome or a biome allow list opts in.
-            bool allowAnyBiome = ext?.allowAnyBiome == true;
-            var listedBiomes = new HashSet<BiomeDef>(constraints.OfType<TileConstraint_Biome>()
-                .Where(c => c.allowedBiomes != null)
-                .SelectMany(c => c.allowedBiomes!));
-
-            // Lazy Fisher-Yates: tiles are tried in uniformly random order and the first that passes is a uniform pick among all valid tiles.
-            PlanetLayer surface = world.grid.Surface;
-            int tilesCount = world.grid.TilesCount;
-            int[] order = new int[tilesCount];
-            for (int i = 0; i < tilesCount; i++)
-                order[i] = i;
-
-            for (int i = 0; i < tilesCount; i++)
+            var tiles = new List<PlanetTile>();
+            var weights = new List<float>();
+            float total = 0f;
+            for (int i = 0; i < grid.TilesCount; i++)
             {
-                int j = Rand.RangeInclusive(i, tilesCount - 1);
-                (order[i], order[j]) = (order[j], order[i]);
-                var tile = new PlanetTile(order[i], surface);
-
-                // Cheap biome and constraint checks run before vanilla's settlement check, which looks up world objects.
-                BiomeDef biome = world.grid[tile].PrimaryBiome;
-                if (!biome.canAutoChoose && !allowAnyBiome && !listedBiomes.Contains(biome))
+                var tile = new PlanetTile(i, surface);
+                Tile data = grid[tile];
+                BiomeDef biome = data.PrimaryBiome;
+                if (!biome.canBuildBase || !biome.implemented || !biome.canAutoChoose || data.hilliness == Hilliness.Impassable)
                     continue;
-                if (!constraints.All(c => c.IsSatisfiedBy(tile, context)))
-                    continue;
-                if (!TileFinder.IsValidTileForNewSettlement(tile))
+                if (excludeExtreme && IsExtreme(biome))
                     continue;
 
-                chosenTile = tile;
-                failure = null;
-                return true;
+                float weight = biome.settlementSelectionWeight;
+                if (temperatureCurve != null)
+                    weight *= temperatureCurve.Evaluate(GenTemperature.MinTemperatureAtTile(tile));
+                if (weight <= 0f)
+                    continue;
+
+                tiles.Add(tile);
+                weights.Add(weight);
+                total += weight;
             }
 
-            chosenTile = PlanetTile.Invalid;
-            failure = new TileSelectionFailure
+            // Weighted draws; vanilla's settlement check (occupied or next to a settlement) runs only on the drawn tile.
+            while (tiles.Count > 0)
             {
-                Reason = "JustStart_ErrorNoValidTile".Translate(scenarioDef?.LabelCap ?? Find.Scenario.name),
-                UnsatisfiedConstraintDescriptions = constraints.Select(c => c.Describe()).ToList(),
-            };
+                int index = WeightedIndex(weights, total);
+                if (TileFinder.IsValidTileForNewSettlement(tiles[index]))
+                {
+                    chosen = tiles[index];
+                    return true;
+                }
+                total -= weights[index];
+                int last = tiles.Count - 1;
+                tiles[index] = tiles[last];
+                weights[index] = weights[last];
+                tiles.RemoveAt(last);
+                weights.RemoveAt(last);
+            }
+
+            chosen = PlanetTile.Invalid;
             return false;
+        }
+
+        /// <summary>Biomes the game warns about when settling there (BiomeDef.settleWarning).</summary>
+        public static bool IsExtreme(BiomeDef biome) => !biome.settleWarning.NullOrEmpty();
+
+        private static int WeightedIndex(List<float> weights, float total)
+        {
+            float roll = Rand.Value * total;
+            for (int i = 0; i < weights.Count; i++)
+            {
+                roll -= weights[i];
+                if (roll < 0f)
+                    return i;
+            }
+            return weights.Count - 1;
         }
     }
 }

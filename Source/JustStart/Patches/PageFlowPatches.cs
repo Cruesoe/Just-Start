@@ -98,29 +98,6 @@ namespace JustStart
         }
     }
 
-    /// <summary>Spawns queued non-colonist pawns, animals and map items once the starting map exists.</summary>
-    [HarmonyPatch(typeof(Map), "FinalizeInit")]
-    public static class Patch_Map_FinalizeInit_SpawnJustStartPawns
-    {
-        public static void Postfix(Map __instance)
-        {
-            if (__instance.IsPlayerHome)
-                JustStartMapSpawnQueue.SpawnAllOn(__instance);
-        }
-    }
-
-    /// <summary>Adds the scenario's Just Start rules to its info panel text, after vanilla's part summaries.</summary>
-    [HarmonyPatch(typeof(Scenario), "GetFullInformationText")]
-    public static class Patch_Scenario_GetFullInformationText_AddRules
-    {
-        public static void Postfix(Scenario __instance, ref string __result)
-        {
-            JustStartScenarioExtension? ext = ScenarioLookup.ExtensionFor(__instance);
-            if (ext != null)
-                __result = ScenarioRulesSummary.AppendTo(__instance, ext, __result);
-        }
-    }
-
     public static class JustStartGameStartHook
     {
         public static bool PendingAutoStart;

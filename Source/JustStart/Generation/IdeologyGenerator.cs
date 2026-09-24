@@ -4,18 +4,12 @@ using Verse;
 
 namespace JustStart
 {
-    /// <summary>Ideology-only. Generates the player's ideoligion through vanilla's IdeoGenerator for the chosen mode and meme/precept rules.</summary>
+    /// <summary>Ideology-only. Generates the player's ideoligion through vanilla's IdeoGenerator for the chosen mode.</summary>
     public static class IdeologyGenerator
     {
-        /// <summary>
-        /// Mirrors Page_ChooseIdeoPreset.PostOpen, DoClassic and AssignIdeoToPlayer, which are skipped along with the page.
-        /// Returns false if no ideoligion meeting the scenario's meme/precept rules could be generated.
-        /// </summary>
-        public static bool ApplyMode(IdeologyMode mode, IdeologyRuleSet? rules)
+        /// <summary>Mirrors Page_ChooseIdeoPreset.PostOpen, DoClassic and AssignIdeoToPlayer, which are skipped along with the page.</summary>
+        public static void ApplyMode(IdeologyMode mode)
         {
-            if (!ModsConfig.IdeologyActive)
-                return true;
-
             FactionDef playerDef = Find.FactionManager.OfPlayer.def;
 
             if (mode == IdeologyMode.Classic)
@@ -31,21 +25,17 @@ namespace JustStart
                 }
                 Find.IdeoManager.classicMode = true;
                 Find.IdeoManager.RemoveUnusedStartingIdeos();
-                return true;
+                return;
             }
 
             Find.IdeoManager.classicMode = false;
             GenerateMissingFactionIdeos();
 
-            Ideo? ideo = mode == IdeologyMode.Inactive
+            Ideo ideo = mode == IdeologyMode.Inactive
                 ? GenerateClassicIdeo(playerDef)
-                : GenerateRuledIdeo(playerDef, mode, rules);
-            if (ideo == null)
-                return false;
-
+                : GenerateRandomIdeo(playerDef, mode);
             AssignToPlayer(ideo);
             Find.IdeoManager.RemoveUnusedStartingIdeos();
-            return true;
         }
 
         private static void GenerateMissingFactionIdeos()
@@ -71,39 +61,8 @@ namespace JustStart
             return IdeoGenerator.GenerateClassicIdeo(culture, new IdeoGenerationParms(playerDef), noExpansionIdeo: false);
         }
 
-        // disallowedMemes only filters vanilla's random normal memes, so every rule is re-checked here and retried.
-        private static Ideo? GenerateRuledIdeo(FactionDef playerDef, IdeologyMode mode, IdeologyRuleSet? rules)
-        {
-            var parms = new IdeoGenerationParms(
-                playerDef,
-                forceNoExpansionIdeo: false,
-                disallowedPrecepts: rules?.disallowedPrecepts,
-                disallowedMemes: rules?.disallowedMemes,
-                forcedMemes: rules != null && !rules.forcedMemes.NullOrEmpty() ? rules.forcedMemes : null,
-                forceNoWeaponPreference: false,
-                forNewFluidIdeo: mode == IdeologyMode.Fluid);
-
-            for (int i = 0; i < (rules?.generationAttempts ?? 50); i++)
-            {
-                Ideo ideo = IdeoGenerator.GenerateIdeo(parms);
-                if (MeetsRules(ideo, rules))
-                    return ideo;
-            }
-            return null;
-        }
-
-        private static bool MeetsRules(Ideo ideo, IdeologyRuleSet? rules)
-        {
-            if (rules == null)
-                return true;
-            if (rules.forcedMemes != null && !rules.forcedMemes.All(ideo.memes.Contains))
-                return false;
-            if (rules.disallowedMemes != null && ideo.memes.Any(rules.disallowedMemes.Contains))
-                return false;
-            if (rules.disallowedPrecepts != null && ideo.PreceptsListForReading.Any(p => rules.disallowedPrecepts.Contains(p.def)))
-                return false;
-            return true;
-        }
+        private static Ideo GenerateRandomIdeo(FactionDef playerDef, IdeologyMode mode) =>
+            IdeoGenerator.GenerateIdeo(new IdeoGenerationParms(playerDef, forNewFluidIdeo: mode == IdeologyMode.Fluid));
 
         private static void AssignToPlayer(Ideo ideo)
         {

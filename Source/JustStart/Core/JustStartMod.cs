@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -32,12 +34,9 @@ namespace JustStart
             listing.Begin(inRect);
 
             listing.CheckboxLabeled(
-                "JustStart_SettingsCuratedRestrictionsLabel".Translate(),
-                ref Settings.useCuratedVanillaRestrictions,
-                "JustStart_SettingsCuratedRestrictionsTooltip".Translate());
-
-            listing.Gap();
-            listing.Label("JustStart_SettingsCuratedRestrictionsNote".Translate());
+                "JustStart_SettingsExcludeExtremeLabel".Translate(),
+                ref Settings.excludeExtremeBiomes,
+                "JustStart_SettingsExcludeExtremeTooltip".Translate(ExtremeBiomeList()));
 
             listing.GapLine();
             Rect row = listing.GetRect(30f);
@@ -63,24 +62,22 @@ namespace JustStart
             base.DoSettingsWindowContents(inRect);
         }
 
-        public override void WriteSettings()
-        {
-            base.WriteSettings();
-            ScenarioRulesSummary.ClearCache();
-        }
+        // Every loaded biome the game warns about when settling there, including other mods' biomes.
+        private static string ExtremeBiomeList() =>
+            DefDatabase<BiomeDef>.AllDefs.Where(TileSelector.IsExtreme).Select(b => b.LabelCap.Resolve()).ToLineList("  - ");
     }
 
     public class JustStartSettings : ModSettings
     {
-        /// <summary>When on, extensions marked curatedRestrictionOnly apply their tile constraints. Off by default.</summary>
-        public bool useCuratedVanillaRestrictions = false;
+        /// <summary>When on, biomes with a settle warning are never picked. Off by default.</summary>
+        public bool excludeExtremeBiomes = false;
 
-        /// <summary>Ideoligion mode for scenarios that set none; only used with Ideology active.</summary>
+        /// <summary>Ideoligion mode for the player; only used with Ideology active.</summary>
         public IdeologyMode defaultIdeologyMode = IdeologyMode.Fixed;
 
         public override void ExposeData()
         {
-            Scribe_Values.Look(ref useCuratedVanillaRestrictions, "useCuratedVanillaRestrictions", false);
+            Scribe_Values.Look(ref excludeExtremeBiomes, "excludeExtremeBiomes", false);
             Scribe_Values.Look(ref defaultIdeologyMode, "defaultIdeologyMode", IdeologyMode.Fixed);
             base.ExposeData();
         }
