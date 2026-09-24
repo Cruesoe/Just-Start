@@ -2,10 +2,8 @@
 
 "You configure the game. Just Start deals you the hand."
 
-You still choose your scenario, storyteller, difficulty, and world settings exactly as normal.
-Click Just Start instead of Generate and it takes over from there: picking a valid starting tile
-and generating your starting colonists within whatever rules the scenario declares - no site
-hunting, no pawn re-rolling.
+You still choose your scenario, storyteller, difficulty and world settings as normal. Click Just Start
+instead of Generate and it takes over from there: a random starting site, weighted by biome like the
+"Select random site" button, and the scenario's colonists as they come. No site hunting, no rerolling.
 
-Includes five bundled scenarios built on the same framework: The Kindred, The Prisoner, I Got
-This, Mountain Dwellers, and Randy's Choice.
+Optionally excludes extreme biomes, and sets up your ideoligion for you when Ideology is active.

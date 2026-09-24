@@ -1,72 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <JustStart_ButtonJustStart>Just Start</JustStart_ButtonJustStart>
-  <JustStart_ButtonJustStartTooltip>Generate the world, then skip straight to playing: pick a valid tile and generate colonists using this scenario's Just Start rules, with no further setup screens.\n\nRight-click for Just Start settings.</JustStart_ButtonJustStartTooltip>
+  <JustStart_ButtonJustStartTooltip>Generate the world, then skip straight to playing: pick a random starting site and accept the scenario's colonists, with no further setup screens.\n\nRight-click for Just Start settings.</JustStart_ButtonJustStartTooltip>
 
-  <JustStart_SettingsCuratedRestrictionsLabel>Use curated vanilla restrictions</JustStart_SettingsCuratedRestrictionsLabel>
-  <JustStart_SettingsCuratedRestrictionsTooltip>When enabled, vanilla scenarios with a Just Start curated location profile use it to restrict the starting location. Off by default: vanilla scenarios use any otherwise-valid location.</JustStart_SettingsCuratedRestrictionsTooltip>
-  <JustStart_SettingsCuratedRestrictionsNote>Curated profiles are supplied per-scenario as data. None are bundled yet.</JustStart_SettingsCuratedRestrictionsNote>
+  <JustStart_SettingsExcludeExtremeLabel>Exclude extreme biomes</JustStart_SettingsExcludeExtremeLabel>
+  <JustStart_SettingsExcludeExtremeTooltip>Never start in a biome the game warns about when you settle there:\n{0}</JustStart_SettingsExcludeExtremeTooltip>
 
-  <JustStart_SettingsDefaultIdeologyLabel>Default ideoligion mode</JustStart_SettingsDefaultIdeologyLabel>
-  <JustStart_SettingsDefaultIdeologyTooltip>Used for scenarios that don't set their own ideoligion mode.</JustStart_SettingsDefaultIdeologyTooltip>
+  <JustStart_SettingsDefaultIdeologyLabel>Ideoligion mode</JustStart_SettingsDefaultIdeologyLabel>
+  <JustStart_SettingsDefaultIdeologyTooltip>How Just Start sets up your ideoligion.</JustStart_SettingsDefaultIdeologyTooltip>
   <JustStart_SettingsDefaultIdeologyRequiresIdeology>Requires the Ideology DLC.</JustStart_SettingsDefaultIdeologyRequiresIdeology>
   <JustStart_IdeologyModeInactive>Classic ideoligion for the player only</JustStart_IdeologyModeInactive>
   <JustStart_IdeologyModeFixed>Random fixed ideoligion</JustStart_IdeologyModeFixed>
   <JustStart_IdeologyModeFluid>Random fluid ideoligion</JustStart_IdeologyModeFluid>
   <JustStart_IdeologyModeClassic>Classic mode (every faction shares one classic ideoligion)</JustStart_IdeologyModeClassic>
 
-  <JustStart_ErrorNoValidTile>No valid starting site for {0} exists on this world.</JustStart_ErrorNoValidTile>
-  <JustStart_ErrorValidationFailed>This scenario's configuration has a problem. See the log for details.</JustStart_ErrorValidationFailed>
-  <JustStart_ErrorNoValidIdeo>No ideoligion could be generated that meets this scenario's meme and precept rules.</JustStart_ErrorNoValidIdeo>
+  <JustStart_ErrorNoValidTile>No valid starting site exists on this world.</JustStart_ErrorNoValidTile>
   <JustStart_ErrorNoStartingPawns>This scenario produced no starting colonists.</JustStart_ErrorNoStartingPawns>
   <JustStart_ErrorAdjustWorld>The game has not been started. Adjust the world settings and try again.</JustStart_ErrorAdjustWorld>
-
-  <JustStart_ConstraintBiomeAllowed>Start in one of these biomes: {0}.</JustStart_ConstraintBiomeAllowed>
-  <JustStart_ConstraintBiomeExcluded>Never start in: {0}.</JustStart_ConstraintBiomeExcluded>
-  <JustStart_ConstraintHillinessAllowed>Start on {0} terrain.</JustStart_ConstraintHillinessAllowed>
-  <JustStart_ConstraintTemperature>Start where the average temperature is between {0} and {1}.</JustStart_ConstraintTemperature>
-
-  <JustStart_SummaryStartWithRange>Start with {0} to {1} people.</JustStart_SummaryStartWithRange>
-  <JustStart_SummaryGender>They are {0}.</JustStart_SummaryGender>
-  <JustStart_SummaryAge>They are between {0} and {1} years old.</JustStart_SummaryAge>
-  <JustStart_SummaryViolence>They are capable of violence.</JustStart_SummaryViolence>
-  <JustStart_SummaryColonistCarrying>They start with only: {0}.</JustStart_SummaryColonistCarrying>
-  <JustStart_SummaryColonistAlsoCarrying>They also start with: {0}.</JustStart_SummaryColonistAlsoCarrying>
-  <JustStart_SummaryNothing>They start with nothing.</JustStart_SummaryNothing>
-  <JustStart_SummaryXenotypeRandom>Their xenotype is random.</JustStart_SummaryXenotypeRandom>
-  <JustStart_SummaryXenotypeSameForAll>They all share one random xenotype.</JustStart_SummaryXenotypeSameForAll>
-  <JustStart_SummaryXenotypeSameForAllFrom>They all share one xenotype, chosen from: {0}.</JustStart_SummaryXenotypeSameForAllFrom>
-  <JustStart_SummaryXenotypeFixed>They are {0}.</JustStart_SummaryXenotypeFixed>
-  <JustStart_SummaryXenotypePool>Their xenotypes are chosen from: {0}.</JustStart_SummaryXenotypePool>
-  <JustStart_SummaryXenotypeExcluded>None of them are: {0}.</JustStart_SummaryXenotypeExcluded>
-  <JustStart_SummaryXenotypeRequired>At least {0} of them are: {1}.</JustStart_SummaryXenotypeRequired>
-  <JustStart_SummaryHostileOne>A hostile {0} is nearby.</JustStart_SummaryHostileOne>
-  <JustStart_SummaryHostileMany>{0} hostile {1} are nearby.</JustStart_SummaryHostileMany>
-  <JustStart_SummaryHostileWeapon>They are armed with {0}.</JustStart_SummaryHostileWeapon>
-  <JustStart_SummaryToTheDeath>They will fight to the death.</JustStart_SummaryToTheDeath>
-  <JustStart_SummaryMapThing>{0} lies somewhere nearby.</JustStart_SummaryMapThing>
-  <JustStart_SummaryOr>or</JustStart_SummaryOr>
-  <JustStart_SummaryAnimals>Start with {0} {1}.</JustStart_SummaryAnimals>
-  <JustStart_SummaryPackAnimal>random pack animal</JustStart_SummaryPackAnimal>
-  <JustStart_SummaryAnimal>random animal</JustStart_SummaryAnimal>
-  <JustStart_SummaryAnimalCarrying>It carries: {0}.</JustStart_SummaryAnimalCarrying>
-  <JustStart_SummaryAnyBiome>Start in any biome.</JustStart_SummaryAnyBiome>
-  <JustStart_SummarySeasons>Start in {0}.</JustStart_SummarySeasons>
-  <JustStart_SummaryArrival>Arrive {0}.</JustStart_SummaryArrival>
-  <JustStart_ArrivalStanding>on foot</JustStart_ArrivalStanding>
-  <JustStart_ArrivalDropPods>by drop pod</JustStart_ArrivalDropPods>
-  <JustStart_ArrivalGravship>by gravship</JustStart_ArrivalGravship>
-  <JustStart_SummaryIdeoInactive>Start with a classic ideoligion.</JustStart_SummaryIdeoInactive>
-  <JustStart_SummaryIdeoFixed>Start with a random fixed ideoligion.</JustStart_SummaryIdeoFixed>
-  <JustStart_SummaryIdeoFluid>Start with a random fluid ideoligion.</JustStart_SummaryIdeoFluid>
-  <JustStart_SummaryIdeoClassic>Every faction shares one classic ideoligion.</JustStart_SummaryIdeoClassic>
-  <JustStart_SummaryIdeoModes>Start with {0}.</JustStart_SummaryIdeoModes>
-  <JustStart_IdeoOptionInactive>a classic ideoligion</JustStart_IdeoOptionInactive>
-  <JustStart_IdeoOptionFixed>a random fixed ideoligion</JustStart_IdeoOptionFixed>
-  <JustStart_IdeoOptionFluid>a random fluid ideoligion</JustStart_IdeoOptionFluid>
-  <JustStart_IdeoOptionClassic>one classic ideoligion shared by every faction</JustStart_IdeoOptionClassic>
-  <JustStart_SummaryIdeoForced>Your ideoligion includes: {0}.</JustStart_SummaryIdeoForced>
-  <JustStart_SummaryIdeoDisallowedMemes>Your ideoligion never includes: {0}.</JustStart_SummaryIdeoDisallowedMemes>
-  <JustStart_SummaryIdeoDisallowedPrecepts>Your ideoligion never has: {0}.</JustStart_SummaryIdeoDisallowedPrecepts>
 </LanguageData>
-
