@@ -2,7 +2,7 @@
 
 Just Start adds a button to the world settings page that generates the world and then starts the game
 without the starting-site, ideoligion and pawn pages. It deliberately has no scenario framework: an
-earlier version with scenario rules and bundled scenarios is in git history (tag `260924`).
+earlier version with scenario rules and bundled scenarios is in git history (commit `deda781`).
 
 ## How it works
 
