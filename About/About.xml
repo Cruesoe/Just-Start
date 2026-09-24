@@ -6,13 +6,20 @@
   <modVersion IgnoreIfNoMatchingField="True">260924</modVersion>
   <description>You configure the game. Just Start deals you the hand.
 
-Choose your scenario, storyteller, difficulty and world settings as normal, then click Just Start instead of Generate. The world is generated, a random starting site is picked, weighted by biome like the "Select random site" button, and you start with the scenario's colonists as they come. No site hunting, no rerolling.
+One of the hardest things in RimWorld is actually getting started. I spend ages picking the perfect colonists and agonising over which tile to settle, so long that I barely get round to playing. Maybe you do too. Just Start fixes that. Set up your game the way you like (scenario, storyteller, difficulty, world settings), then press one button. You get a random starting site, a random ideoligion and whoever the game gives you as colonists, and you're straight into the game.
 
-Right-click the Just Start button for its settings:
-- Exclude extreme biomes: never start in a biome the game warns about when settling, such as ice sheet or extreme desert. Off by default.
-- Ideoligion mode: classic, random fixed, random fluid, or classic mode for every faction. Requires Ideology.
+How it works
+Instead of Generate, click Just Start, which sits just above it. Just Start:
+- generates your world as usual
+- picks a random starting site, weighted by biome like the "Select random site" button
+- sets up your ideoligion, if you have Ideology
+- starts the game with the scenario's colonists exactly as they come
+You never see the site picker, the ideoligion screen or the colonist screen. Season and map size still come from the world settings page's Advanced settings.
 
-Works with any scenario, including modded ones.</description>
+Settings
+Right-click the Just Start button, or use the mod settings menu.
+- Exclude extreme biomes (off by default): never start in a biome the game warns you about when settling, such as ice sheet, sea ice or extreme desert. The tooltip lists every biome this covers, including those from other mods.
+- Ideoligion mode (Ideology only): a classic ideoligion, a random fixed one, a random fluid one, or classic mode for every faction.</description>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
