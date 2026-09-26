@@ -61,8 +61,14 @@ namespace JustStart
             return IdeoGenerator.GenerateClassicIdeo(culture, new IdeoGenerationParms(playerDef), noExpansionIdeo: false);
         }
 
-        private static Ideo GenerateRandomIdeo(FactionDef playerDef, IdeologyMode mode) =>
-            IdeoGenerator.GenerateIdeo(new IdeoGenerationParms(playerDef, forNewFluidIdeo: mode == IdeologyMode.Fluid));
+        // forNewFluidIdeo only shapes generation (e.g. fewer memes); like the preset page, the ideo must be marked fluid itself.
+        private static Ideo GenerateRandomIdeo(FactionDef playerDef, IdeologyMode mode)
+        {
+            bool fluid = mode == IdeologyMode.Fluid;
+            Ideo ideo = IdeoGenerator.GenerateIdeo(new IdeoGenerationParms(playerDef, forNewFluidIdeo: fluid));
+            ideo.Fluid = fluid;
+            return ideo;
+        }
 
         private static void AssignToPlayer(Ideo ideo)
         {
