@@ -3,7 +3,7 @@
   <name>Just Start</name>
   <packageId>cruesoe.juststart</packageId>
   <author>Cruesoe</author>
-  <modVersion IgnoreIfNoMatchingField="True">260924</modVersion>
+  <modVersion IgnoreIfNoMatchingField="True">260926</modVersion>
   <description>You configure the game. Just Start deals you the hand.
 
 One of the hardest things in RimWorld is actually getting started. I spend ages picking the perfect colonists and agonising over which tile to settle, so long that I barely get round to playing. Maybe you do too. Just Start fixes that. Set up your game the way you like (scenario, storyteller, difficulty, world settings), then press one button. You get a random starting site, a random ideoligion and whoever the game gives you as colonists, and you're straight into the game.
