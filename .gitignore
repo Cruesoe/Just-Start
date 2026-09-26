@@ -10,3 +10,5 @@ Directory.Build.targets
 *.slnx
 AGENTS.md
 CLAUDE.md
+DEVELOPMENT.md
+JUST_START_DESIGN.md
