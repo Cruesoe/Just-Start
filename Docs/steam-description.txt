@@ -1,0 +1,20 @@
+[i]You configure the game. Just Start deals you the hand.[/i]
+
+One of the hardest things in RimWorld is actually getting started. I spend ages picking the perfect colonists and agonising over which tile to settle, so long that I barely get round to playing. Maybe you do too. Just Start fixes that. Set up your game the way you like (scenario, storyteller, difficulty, world settings), then press one button. You get a random starting site, a random ideoligion and whoever the game gives you as colonists, and you're straight into the game.
+
+[h2]How it works[/h2]
+Instead of Generate, click [b]Just Start[/b], which sits just above it. Just Start:
+[list]
+[*]generates your world as usual
+[*]picks a random starting site, weighted by biome like the "Select random site" button
+[*]sets up your ideoligion, if you have Ideology
+[*]starts the game with the scenario's colonists exactly as they come
+[/list]
+You never see the site picker, the ideoligion screen or the colonist screen. Season and map size still come from the world settings page's Advanced settings.
+
+[h2]Settings[/h2]
+Right-click the Just Start button, or use the mod settings menu.
+[list]
+[*][b]Exclude extreme biomes[/b] (off by default): never start in a biome the game warns you about when settling, such as ice sheet, sea ice or extreme desert. The tooltip lists every biome this covers, including those from other mods.
+[*][b]Ideoligion mode[/b] (Ideology only): a classic ideoligion, a random fixed one, a random fluid one, or classic mode for every faction.
+[/list]
