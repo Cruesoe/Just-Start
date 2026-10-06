@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -6,6 +7,45 @@ using Verse;
 
 namespace JustStart
 {
+    // Forced-map scenarios omit site selection; add a hidden hook without changing their normal page flow.
+    [HarmonyPatch(typeof(Scenario), nameof(Scenario.GetFirstConfigPage))]
+    public static class Patch_Scenario_GetFirstConfigPage_AddForcedMapHook
+    {
+        public static void Postfix(Scenario __instance, Page __result)
+        {
+            if (!__instance.AllParts.OfType<ScenPart_ForcedMap>().Any())
+                return;
+
+            for (Page page = __result; page != null; page = page.next)
+            {
+                if (!(page is Page_CreateWorldParams))
+                    continue;
+                if (page.next is Page_SelectStartingSite)
+                    break;
+
+                var hook = new Page_SelectStartingSite
+                {
+                    prev = page,
+                    next = page.next,
+                    nextAct = page.nextAct
+                };
+                if (hook.next != null)
+                    hook.next.prev = hook;
+                page.next = hook;
+                page.nextAct = null;
+                break;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Page_SelectStartingSite), "PostOpen")]
+    public static class Patch_Page_SelectStartingSite_PostOpen_SkipForcedMapHook
+    {
+        public static bool Prefix(Page_SelectStartingSite __instance) =>
+            JustStartGameStartHook.AutoStartPage != __instance &&
+            !Find.Scenario.AllParts.OfType<ScenPart_ForcedMap>().Any();
+    }
+
     /// <summary>
     /// Adds a "Just Start" button above Page_CreateWorldParams's own "Generate" button. It runs the same world
     /// generation as Generate (CanDoNext), then the Page_SelectStartingSite patches below run JustStartFlow instead of showing that page.
@@ -53,7 +93,7 @@ namespace JustStart
         public static bool Prefix(Page_SelectStartingSite __instance)
         {
             if (!JustStartGameStartHook.PendingAutoStart)
-                return true;
+                return !Find.Scenario.AllParts.OfType<ScenPart_ForcedMap>().Any();
 
             JustStartGameStartHook.PendingAutoStart = false;
             JustStartGameStartHook.AutoStartPage = __instance;
@@ -68,7 +108,21 @@ namespace JustStart
         public static bool Prefix(Page_SelectStartingSite __instance)
         {
             if (JustStartGameStartHook.AutoStartPage != __instance)
+            {
+                if (Find.Scenario.AllParts.OfType<ScenPart_ForcedMap>().Any())
+                {
+                    __instance.Close(doCloseSound: false);
+                    if (__instance.next != null)
+                    {
+                        __instance.next.prev = __instance.prev;
+                        Find.WindowStack.Add(__instance.next);
+                    }
+                    else
+                        __instance.nextAct?.Invoke();
+                    return false;
+                }
                 return true;
+            }
 
             if (!JustStartGameStartHook.FlowRan)
             {
@@ -85,7 +139,8 @@ namespace JustStart
     public static class Patch_Page_SelectStartingSite_DoWindowContents_SkipIfAutoStart
     {
         public static bool Prefix(Page_SelectStartingSite __instance) =>
-            JustStartGameStartHook.AutoStartPage != __instance;
+            JustStartGameStartHook.AutoStartPage != __instance &&
+            !Find.Scenario.AllParts.OfType<ScenPart_ForcedMap>().Any();
     }
 
     [HarmonyPatch(typeof(Page_SelectStartingSite), "PostClose")]

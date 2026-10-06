@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
 using Verse;
@@ -13,12 +14,22 @@ namespace JustStart
     {
         public static void Run(Action onFailure)
         {
-            if (!TileSelector.TryFindTile(out PlanetTile tile))
+            // Forced-map scenarios already chose their tile and map generator during world generation.
+            if (!Find.Scenario.AllParts.OfType<ScenPart_ForcedMap>().Any())
+            {
+                if (!TileSelector.TryFindTile(out PlanetTile tile))
+                {
+                    Fail("JustStart_ErrorNoValidTile".Translate(), onFailure);
+                    return;
+                }
+                Find.GameInitData.startingTile = tile;
+            }
+
+            if (!Find.GameInitData.startingTile.Valid)
             {
                 Fail("JustStart_ErrorNoValidTile".Translate(), onFailure);
                 return;
             }
-            Find.GameInitData.startingTile = tile;
 
             if (ModsConfig.IdeologyActive)
             {
