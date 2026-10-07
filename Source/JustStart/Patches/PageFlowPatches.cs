@@ -47,7 +47,7 @@ namespace JustStart
     }
 
     /// <summary>
-    /// Adds a "Just Start" button above Page_CreateWorldParams's own "Generate" button. It runs the same world
+    /// Adds a "Just Start" button to the left of Page_CreateWorldParams's own "Generate" button. It runs the same world
     /// generation as Generate (CanDoNext), then the Page_SelectStartingSite patches below run JustStartFlow instead of showing that page.
     /// </summary>
     [HarmonyPatch(typeof(Page_CreateWorldParams), "DoWindowContents")]
@@ -61,8 +61,8 @@ namespace JustStart
         {
             Vector2 bottomButSize = BottomButSizeRef();
             float generateButtonY = rect.y + rect.height - Page.BottomButHeight;
-            // 17f matches Page.GetMainRect's own bottom margin, so this row sits flush above the content area.
-            Rect buttonRect = new Rect(rect.x + rect.width - bottomButSize.x, generateButtonY - 17f - bottomButSize.y, bottomButSize.x, bottomButSize.y);
+            // Keep both start actions in the bottom row, separated by the standard 17f gap.
+            Rect buttonRect = new Rect(rect.xMax - 2f * bottomButSize.x - 17f, generateButtonY, bottomButSize.x, bottomButSize.y);
 
             if (Widgets.ButtonText(buttonRect, "JustStart_ButtonJustStart".Translate()))
             {
