@@ -19,7 +19,7 @@
   <JustStart_IdeologyModeClassic>Classic mode (every faction shares one classic ideoligion)</JustStart_IdeologyModeClassic>
 
   <JustStart_SettingsXenotypeLabel>Starting xenotype</JustStart_SettingsXenotypeLabel>
-  <JustStart_SettingsXenotypeTooltip>The xenotype every starting colonist has. Anything other than Scenario's choice overrides the xenotypes the scenario sets.</JustStart_SettingsXenotypeTooltip>
+  <JustStart_SettingsXenotypeTooltip>The xenotype of every starting colonist, or a random one each with Mixed. Anything other than Scenario's choice overrides the xenotypes the scenario sets.</JustStart_SettingsXenotypeTooltip>
   <JustStart_SettingsXenotypeRequiresBiotech>Requires the Biotech DLC.</JustStart_SettingsXenotypeRequiresBiotech>
   <JustStart_XenotypeBaseliner>Baseliner</JustStart_XenotypeBaseliner>
   <JustStart_XenotypeScenario>Scenario's choice</JustStart_XenotypeScenario>

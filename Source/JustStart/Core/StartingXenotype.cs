@@ -24,24 +24,50 @@ namespace JustStart
 
         private static Texture2D? mixedIcon;
         private static List<CustomXenotype>? customXenotypes;
+        // The language the caches above were built under; a language change reloads every Def and texture.
+        private static LoadedLanguage? cacheLanguage;
         // Built on the main thread when Just Start is clicked; world generation (which may generate the pawns) runs asynchronously.
         // Empty leaves the scenario's xenotypes alone.
         private static List<Choice> runChoices = new List<Choice>();
+        // Custom xenotypes given to colonists this run, added to the new game's custom xenotype database before it starts.
+        private static readonly HashSet<CustomXenotype> appliedCustom = new HashSet<CustomXenotype>();
 
         private static JustStartSettings Settings => JustStartMod.Settings;
 
         private static StartingXenotypeMode Mode => Settings.xenotypeMode;
 
-        private static Texture2D MixedIcon =>
-            mixedIcon ??= ContentFinder<Texture2D>.Get("UI/Structures/Random", reportFailure: false)
-                ?? ContentFinder<Texture2D>.Get("UI/Icons/QuestionMark");
+        private static void ClearCachesIfReloaded()
+        {
+            if (cacheLanguage == LanguageDatabase.activeLanguage)
+                return;
+            cacheLanguage = LanguageDatabase.activeLanguage;
+            mixedIcon = null;
+            customXenotypes = null;
+        }
+
+        private static Texture2D MixedIcon
+        {
+            get
+            {
+                ClearCachesIfReloaded();
+                return mixedIcon ??= ContentFinder<Texture2D>.Get("UI/Structures/Random", reportFailure: false)
+                    ?? ContentFinder<Texture2D>.Get("UI/Icons/QuestionMark");
+            }
+        }
 
         /// <summary>Every loaded xenotype, in the order the vanilla character editor lists them.</summary>
         public static IEnumerable<XenotypeDef> AllXenotypes =>
             DefDatabase<XenotypeDef>.AllDefs.OrderBy(x => -x.displayPriority);
 
         /// <summary>The player's saved custom xenotypes, newest first; loaded on first use, and never without Biotech.</summary>
-        private static List<CustomXenotype> CustomXenotypes => customXenotypes ??= LoadCustomXenotypes();
+        private static List<CustomXenotype> CustomXenotypes
+        {
+            get
+            {
+                ClearCachesIfReloaded();
+                return customXenotypes ??= LoadCustomXenotypes();
+            }
+        }
 
         private static List<CustomXenotype> LoadCustomXenotypes()
         {
@@ -92,6 +118,7 @@ namespace JustStart
         public static void PrepareRun()
         {
             runChoices = new List<Choice>();
+            appliedCustom.Clear();
             if (!ModsConfig.BiotechActive)
                 return;
             customXenotypes = null;
@@ -111,6 +138,24 @@ namespace JustStart
             request.ForcedCustomXenotype = choice.Custom;
             request.AllowedXenotypes = null;
             request.ForceBaselinerChance = 0f;
+            if (choice.Custom != null)
+                appliedCustom.Add(choice.Custom);
+        }
+
+        /// <summary>
+        /// Adds the custom xenotypes given this run to the game's database, as vanilla does for the starting-pawn page's
+        /// choices; without it the colonists count as baseliners.
+        /// </summary>
+        public static void RegisterAppliedCustomXenotypes()
+        {
+            if (!ModsConfig.BiotechActive)
+                return;
+            List<CustomXenotype> known = Current.Game.customXenotypeDatabase.customXenotypes;
+            foreach (CustomXenotype custom in appliedCustom)
+            {
+                if (!known.Contains(custom))
+                    known.Add(custom);
+            }
         }
 
         private static string Label(Choice choice) =>

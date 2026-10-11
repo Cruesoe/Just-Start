@@ -99,10 +99,21 @@ namespace JustStart
             listing.GapLine(6f);
         }
 
-        // Every loaded biome the game warns about when settling there, including other mods' biomes; built once, as Defs don't change after load.
+        // Every loaded biome the game warns about when settling there, including other mods' biomes; rebuilt when a language change reloads the Defs.
         private static string? extremeBiomeList;
+        private static LoadedLanguage? extremeBiomeListLanguage;
 
-        private static string ExtremeBiomeList =>
-            extremeBiomeList ??= DefDatabase<BiomeDef>.AllDefs.Where(TileSelector.IsExtreme).Select(b => b.LabelCap.Resolve()).ToLineList("  - ");
+        private static string ExtremeBiomeList
+        {
+            get
+            {
+                if (extremeBiomeList == null || extremeBiomeListLanguage != LanguageDatabase.activeLanguage)
+                {
+                    extremeBiomeListLanguage = LanguageDatabase.activeLanguage;
+                    extremeBiomeList = DefDatabase<BiomeDef>.AllDefs.Where(TileSelector.IsExtreme).Select(b => b.LabelCap.Resolve()).ToLineList("  - ");
+                }
+                return extremeBiomeList;
+            }
+        }
     }
 }

@@ -60,6 +60,7 @@ namespace JustStart
                 return;
             }
 
+            StartingXenotype.RegisterAppliedCustomXenotypes();
             PageUtility.InitGameStart();
         }
 
