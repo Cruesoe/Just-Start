@@ -12,7 +12,23 @@ namespace JustStart
     /// </summary>
     public static class JustStartFlow
     {
+        /// <summary>True while Run is executing.</summary>
+        public static bool Running { get; private set; }
+
         public static void Run(Action onFailure)
+        {
+            Running = true;
+            try
+            {
+                RunInner(onFailure);
+            }
+            finally
+            {
+                Running = false;
+            }
+        }
+
+        private static void RunInner(Action onFailure)
         {
             // Forced-map scenarios already chose their tile and map generator during world generation.
             if (!Find.Scenario.AllParts.OfType<ScenPart_ForcedMap>().Any())

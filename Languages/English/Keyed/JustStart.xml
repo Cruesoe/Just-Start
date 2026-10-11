@@ -3,6 +3,10 @@
   <JustStart_ButtonJustStart>Just Start</JustStart_ButtonJustStart>
   <JustStart_ButtonJustStartTooltip>Generate the world, then skip straight to playing: pick a random starting site and accept the scenario's colonists, with no further setup screens.\n\nRight-click for Just Start settings.</JustStart_ButtonJustStartTooltip>
 
+  <JustStart_SettingsSectionSite>Starting site</JustStart_SettingsSectionSite>
+  <JustStart_SettingsSectionIdeoligion>Ideoligion</JustStart_SettingsSectionIdeoligion>
+  <JustStart_SettingsSectionColonists>Colonists</JustStart_SettingsSectionColonists>
+
   <JustStart_SettingsExcludeExtremeLabel>Exclude extreme biomes</JustStart_SettingsExcludeExtremeLabel>
   <JustStart_SettingsExcludeExtremeTooltip>Never start in a biome the game warns about when you settle there:\n{0}</JustStart_SettingsExcludeExtremeTooltip>
 
@@ -13,6 +17,15 @@
   <JustStart_IdeologyModeFixed>Random fixed ideoligion</JustStart_IdeologyModeFixed>
   <JustStart_IdeologyModeFluid>Random fluid ideoligion</JustStart_IdeologyModeFluid>
   <JustStart_IdeologyModeClassic>Classic mode (every faction shares one classic ideoligion)</JustStart_IdeologyModeClassic>
+
+  <JustStart_SettingsXenotypeLabel>Starting xenotype</JustStart_SettingsXenotypeLabel>
+  <JustStart_SettingsXenotypeTooltip>The xenotype every starting colonist has. This overrides any xenotypes the scenario sets.</JustStart_SettingsXenotypeTooltip>
+  <JustStart_SettingsXenotypeRequiresBiotech>Requires the Biotech DLC.</JustStart_SettingsXenotypeRequiresBiotech>
+  <JustStart_XenotypeMixed>Mixed</JustStart_XenotypeMixed>
+  <JustStart_XenotypeMixedTooltip>Each starting colonist gets a random xenotype from every xenotype loaded.</JustStart_XenotypeMixedTooltip>
+  <JustStart_SettingsMixedCustomLabel>Mixed includes custom xenotypes</JustStart_SettingsMixedCustomLabel>
+  <JustStart_SettingsMixedCustomTooltip>Mixed can also pick the custom xenotypes you have saved in the xenotype editor.</JustStart_SettingsMixedCustomTooltip>
+  <JustStart_SettingsMixedCustomRequiresMixed>Only used when the starting xenotype is Mixed.</JustStart_SettingsMixedCustomRequiresMixed>
 
   <JustStart_ErrorNoValidTile>No valid starting site exists on this world.</JustStart_ErrorNoValidTile>
   <JustStart_ErrorNoStartingPawns>This scenario produced no starting colonists.</JustStart_ErrorNoStartingPawns>

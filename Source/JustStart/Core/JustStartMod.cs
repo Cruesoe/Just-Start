@@ -32,13 +32,15 @@ namespace JustStart
         {
             var listing = new Listing_Standard();
             listing.Begin(inRect);
+            listing.ColumnWidth = Mathf.Min(inRect.width, SettingsColumnWidth);
 
+            Heading(listing, "JustStart_SettingsSectionSite".Translate());
             listing.CheckboxLabeled(
                 "JustStart_SettingsExcludeExtremeLabel".Translate(),
                 ref Settings.excludeExtremeBiomes,
                 "JustStart_SettingsExcludeExtremeTooltip".Translate(ExtremeBiomeList()));
 
-            listing.GapLine();
+            Heading(listing, "JustStart_SettingsSectionIdeoligion".Translate());
             Rect row = listing.GetRect(30f);
             Widgets.Label(row.LeftHalf(), "JustStart_SettingsDefaultIdeologyLabel".Translate());
             if (ModsConfig.IdeologyActive)
@@ -58,8 +60,43 @@ namespace JustStart
                 Widgets.ButtonText(row.RightHalf(), ModeLabel(Settings.defaultIdeologyMode), active: false);
             }
 
+            Heading(listing, "JustStart_SettingsSectionColonists".Translate());
+            bool biotech = ModsConfig.BiotechActive;
+            Rect xenotypeRow = listing.GetRect(30f);
+            Widgets.Label(xenotypeRow.LeftHalf(), "JustStart_SettingsXenotypeLabel".Translate());
+            TooltipHandler.TipRegion(xenotypeRow, biotech
+                ? "JustStart_SettingsXenotypeTooltip".Translate()
+                : "JustStart_SettingsXenotypeRequiresBiotech".Translate());
+            if (StartingXenotype.DrawButton(xenotypeRow.RightHalf(), biotech))
+                StartingXenotype.OpenMenu();
+
+            listing.Gap(4f);
+            Rect customRow = listing.GetRect(Text.LineHeight);
+            customRow.xMin += IndentWidth;
+            bool customActive = biotech && Settings.mixedXenotypes;
+            Widgets.CheckboxLabeled(customRow, "JustStart_SettingsMixedCustomLabel".Translate(), ref Settings.mixedIncludesCustom, disabled: !customActive);
+            TooltipHandler.TipRegion(customRow, !biotech
+                ? "JustStart_SettingsXenotypeRequiresBiotech".Translate()
+                : customActive
+                    ? "JustStart_SettingsMixedCustomTooltip".Translate()
+                    : "JustStart_SettingsMixedCustomRequiresMixed".Translate());
+
             listing.End();
             base.DoSettingsWindowContents(inRect);
+        }
+
+        private const float SettingsColumnWidth = 640f;
+
+        private const float IndentWidth = 24f;
+
+        private static void Heading(Listing_Standard listing, string label)
+        {
+            if (listing.CurHeight > 0f)
+                listing.Gap(18f);
+            Text.Font = GameFont.Medium;
+            listing.Label(label);
+            Text.Font = GameFont.Small;
+            listing.GapLine(6f);
         }
 
         // Every loaded biome the game warns about when settling there, including other mods' biomes.
@@ -75,10 +112,26 @@ namespace JustStart
         /// <summary>Ideoligion mode for the player; only used with Ideology active.</summary>
         public IdeologyMode defaultIdeologyMode = IdeologyMode.Fixed;
 
+        /// <summary>defName of the xenotype every starting colonist gets; only used with Biotech active.</summary>
+        public string startingXenotype = "Baseliner";
+
+        /// <summary>File name of the custom xenotype every starting colonist gets; empty to use startingXenotype.</summary>
+        public string startingCustomXenotype = string.Empty;
+
+        /// <summary>When on, each starting colonist gets a random xenotype instead.</summary>
+        public bool mixedXenotypes = false;
+
+        /// <summary>When on, mixed also picks from the player's custom xenotypes.</summary>
+        public bool mixedIncludesCustom = false;
+
         public override void ExposeData()
         {
             Scribe_Values.Look(ref excludeExtremeBiomes, "excludeExtremeBiomes", false);
             Scribe_Values.Look(ref defaultIdeologyMode, "defaultIdeologyMode", IdeologyMode.Fixed);
+            Scribe_Values.Look(ref startingXenotype, "startingXenotype", "Baseliner");
+            Scribe_Values.Look(ref startingCustomXenotype, "startingCustomXenotype", string.Empty);
+            Scribe_Values.Look(ref mixedXenotypes, "mixedXenotypes", false);
+            Scribe_Values.Look(ref mixedIncludesCustom, "mixedIncludesCustom", false);
             base.ExposeData();
         }
     }

@@ -71,6 +71,7 @@ namespace JustStart
                     Find.WindowStack.Add(new Dialog_ModSettings(JustStartMod.Instance));
                 else
                 {
+                    StartingXenotype.PrepareRun();
                     JustStartGameStartHook.PendingAutoStart = true;
                     CanDoNextMethod.Invoke(__instance, null);
                     // CanDoNext returns false either way; only a queued world generation keeps the flag armed.
