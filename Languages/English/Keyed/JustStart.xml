@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <JustStart_ButtonJustStart>Just Start</JustStart_ButtonJustStart>
-  <JustStart_ButtonJustStartTooltip>Generate the world, then skip straight to playing: pick a random starting site and accept the scenario's colonists, with no further setup screens.\n\nRight-click for Just Start settings.</JustStart_ButtonJustStartTooltip>
+  <JustStart_ButtonJustStartTooltip>Generate the world, then skip straight to playing: pick a random starting site, set up the ideoligion and accept the scenario's colonists (with the xenotype chosen in the settings), with no further setup screens.\n\nRight-click for Just Start settings.</JustStart_ButtonJustStartTooltip>
 
   <JustStart_SettingsSectionSite>Starting site</JustStart_SettingsSectionSite>
   <JustStart_SettingsSectionIdeoligion>Ideoligion</JustStart_SettingsSectionIdeoligion>
@@ -19,8 +19,11 @@
   <JustStart_IdeologyModeClassic>Classic mode (every faction shares one classic ideoligion)</JustStart_IdeologyModeClassic>
 
   <JustStart_SettingsXenotypeLabel>Starting xenotype</JustStart_SettingsXenotypeLabel>
-  <JustStart_SettingsXenotypeTooltip>The xenotype every starting colonist has. This overrides any xenotypes the scenario sets.</JustStart_SettingsXenotypeTooltip>
+  <JustStart_SettingsXenotypeTooltip>The xenotype every starting colonist has. Anything other than Scenario's choice overrides the xenotypes the scenario sets.</JustStart_SettingsXenotypeTooltip>
   <JustStart_SettingsXenotypeRequiresBiotech>Requires the Biotech DLC.</JustStart_SettingsXenotypeRequiresBiotech>
+  <JustStart_XenotypeBaseliner>Baseliner</JustStart_XenotypeBaseliner>
+  <JustStart_XenotypeScenario>Scenario's choice</JustStart_XenotypeScenario>
+  <JustStart_XenotypeScenarioTooltip>Starting colonists keep the xenotypes the scenario gives them, such as the sanguophage in The Sanguophage.</JustStart_XenotypeScenarioTooltip>
   <JustStart_XenotypeMixed>Mixed</JustStart_XenotypeMixed>
   <JustStart_XenotypeMixedTooltip>Each starting colonist gets a random xenotype from every xenotype loaded.</JustStart_XenotypeMixedTooltip>
   <JustStart_SettingsMixedCustomLabel>Mixed includes custom xenotypes</JustStart_SettingsMixedCustomLabel>

@@ -7,7 +7,8 @@ using Verse;
 namespace JustStart
 {
     /// <summary>
-    /// The starting xenotype setting: one xenotype or custom xenotype for every colonist, or a random one each (mixed). Needs Biotech.
+    /// The starting xenotype setting: one xenotype or custom xenotype for every colonist, a random one each (mixed), or the
+    /// scenario's own. Needs Biotech.
     /// </summary>
     public static class StartingXenotype
     {
@@ -24,22 +25,29 @@ namespace JustStart
         private static Texture2D? mixedIcon;
         private static List<CustomXenotype>? customXenotypes;
         // Built on the main thread when Just Start is clicked; world generation (which may generate the pawns) runs asynchronously.
+        // Empty leaves the scenario's xenotypes alone.
         private static List<Choice> runChoices = new List<Choice>();
 
         private static JustStartSettings Settings => JustStartMod.Settings;
 
-        private static Texture2D? MixedIcon => mixedIcon ??= ContentFinder<Texture2D>.Get("UI/Structures/Random", reportFailure: false);
+        private static StartingXenotypeMode Mode => Settings.xenotypeMode;
+
+        private static Texture2D MixedIcon =>
+            mixedIcon ??= ContentFinder<Texture2D>.Get("UI/Structures/Random", reportFailure: false)
+                ?? ContentFinder<Texture2D>.Get("UI/Icons/QuestionMark");
 
         /// <summary>Every loaded xenotype, in the order the vanilla character editor lists them.</summary>
         public static IEnumerable<XenotypeDef> AllXenotypes =>
             DefDatabase<XenotypeDef>.AllDefs.OrderBy(x => -x.displayPriority);
 
-        /// <summary>The player's saved custom xenotypes, newest first; loaded on first use.</summary>
-        public static List<CustomXenotype> CustomXenotypes => customXenotypes ??= LoadCustomXenotypes();
+        /// <summary>The player's saved custom xenotypes, newest first; loaded on first use, and never without Biotech.</summary>
+        private static List<CustomXenotype> CustomXenotypes => customXenotypes ??= LoadCustomXenotypes();
 
         private static List<CustomXenotype> LoadCustomXenotypes()
         {
             var list = new List<CustomXenotype>();
+            if (!ModsConfig.BiotechActive)
+                return list;
             foreach (var file in GenFilePaths.AllCustomXenotypeFiles)
             {
                 if (GameDataSaveLoader.TryLoadXenotype(file.FullName, out CustomXenotype xenotype))
@@ -51,12 +59,20 @@ namespace JustStart
         private static CustomXenotype? SelectedCustom =>
             Settings.startingCustomXenotype.NullOrEmpty() ? null : CustomXenotypes.FirstOrDefault(x => x.fileName == Settings.startingCustomXenotype);
 
-        /// <summary>The chosen xenotype def, or Baseliner if the saved one is no longer loaded.</summary>
-        private static XenotypeDef SelectedDef =>
+        /// <summary>The chosen xenotype def, or Baseliner if the saved one is no longer loaded; null without Biotech.</summary>
+        private static XenotypeDef? SelectedDef =>
             DefDatabase<XenotypeDef>.GetNamedSilentFail(Settings.startingXenotype) ?? XenotypeDefOf.Baseliner;
 
         /// <summary>The fixed choice; a custom xenotype whose file is gone falls back to the def setting.</summary>
-        private static Choice Selected => SelectedCustom is CustomXenotype custom ? new Choice(custom) : new Choice(SelectedDef);
+        private static Choice? Selected
+        {
+            get
+            {
+                if (Mode == StartingXenotypeMode.Custom && SelectedCustom is CustomXenotype custom)
+                    return new Choice(custom);
+                return SelectedDef is XenotypeDef def ? new Choice(def) : (Choice?)null;
+            }
+        }
 
         private static IEnumerable<Choice> MixedPool
         {
@@ -75,16 +91,22 @@ namespace JustStart
         /// <summary>Reloads custom xenotypes and fixes the choices for the Just Start run about to begin.</summary>
         public static void PrepareRun()
         {
+            runChoices = new List<Choice>();
             if (!ModsConfig.BiotechActive)
                 return;
             customXenotypes = null;
-            runChoices =Settings.mixedXenotypes ? MixedPool.ToList() : new List<Choice> { Selected };
+            if (Mode == StartingXenotypeMode.Mixed)
+                runChoices.AddRange(MixedPool);
+            else if (Mode != StartingXenotypeMode.Scenario && Selected is Choice selected)
+                runChoices.Add(selected);
         }
 
         /// <summary>Forces the next starting colonist's xenotype from the choices fixed by PrepareRun.</summary>
         public static void ApplyTo(ref PawnGenerationRequest request)
         {
-            Choice choice = runChoices.Count > 0 ? runChoices.RandomElement() : new Choice(XenotypeDefOf.Baseliner);
+            if (runChoices.Count == 0)
+                return;
+            Choice choice = runChoices.RandomElement();
             request.ForcedXenotype = choice.Def;
             request.ForcedCustomXenotype = choice.Custom;
             request.AllowedXenotypes = null;
@@ -96,28 +118,60 @@ namespace JustStart
                 ? choice.Custom.name.CapitalizeFirst() + " (" + "Custom".Translate() + ")"
                 : choice.Def!.LabelCap.Resolve();
 
-        private static Texture2D? Icon(Choice choice) => choice.Custom != null ? choice.Custom.IconDef.Icon : choice.Def!.Icon;
+        private static Texture2D Icon(Choice choice) => choice.Custom != null ? choice.Custom.IconDef.Icon : choice.Def!.Icon;
 
-        private static string CurrentLabel => Settings.mixedXenotypes ? "JustStart_XenotypeMixed".Translate().Resolve() : Label(Selected);
+        private static string CurrentLabel
+        {
+            get
+            {
+                switch (Mode)
+                {
+                    case StartingXenotypeMode.Mixed:
+                        return "JustStart_XenotypeMixed".Translate();
+                    case StartingXenotypeMode.Scenario:
+                        return "JustStart_XenotypeScenario".Translate();
+                    default:
+                        return Selected is Choice choice ? Label(choice) : "JustStart_XenotypeBaseliner".Translate().Resolve();
+                }
+            }
+        }
 
-        private static Texture2D? CurrentIcon => Settings.mixedXenotypes ? MixedIcon : Icon(Selected);
+        private static Texture2D? CurrentIcon
+        {
+            get
+            {
+                switch (Mode)
+                {
+                    case StartingXenotypeMode.Mixed:
+                        return MixedIcon;
+                    case StartingXenotypeMode.Scenario:
+                        return null;
+                    default:
+                        return Selected is Choice choice ? Icon(choice) : null;
+                }
+            }
+        }
 
         public static void OpenMenu()
         {
             customXenotypes = null;
             var options = new List<FloatMenuOption>
             {
-                new FloatMenuOption("JustStart_XenotypeMixed".Translate(), () => Settings.mixedXenotypes = true,
-                    MixedIcon, XenotypeDef.IconColor, mouseoverGuiAction: r => TooltipHandler.TipRegion(r, "JustStart_XenotypeMixedTooltip".Translate()))
+                // ClearTex keeps the label aligned with the icon entries below.
+                new FloatMenuOption("JustStart_XenotypeScenario".Translate(), () => Settings.xenotypeMode = StartingXenotypeMode.Scenario,
+                    BaseContent.ClearTex, Color.white,
+                    mouseoverGuiAction: r => TooltipHandler.TipRegion(r, "JustStart_XenotypeScenarioTooltip".Translate())),
+                new FloatMenuOption("JustStart_XenotypeMixed".Translate(), () => Settings.xenotypeMode = StartingXenotypeMode.Mixed,
+                    MixedIcon, XenotypeDef.IconColor,
+                    mouseoverGuiAction: r => TooltipHandler.TipRegion(r, "JustStart_XenotypeMixedTooltip".Translate()))
             };
             foreach (XenotypeDef xenotype in AllXenotypes)
             {
                 XenotypeDef local = xenotype;
                 options.Add(new FloatMenuOption(local.LabelCap, () =>
                     {
-                        Settings.mixedXenotypes = false;
+                        Settings.xenotypeMode = StartingXenotypeMode.Xenotype;
                         Settings.startingXenotype = local.defName;
-                        Settings.startingCustomXenotype = string.Empty;
                     },
                     local.Icon, XenotypeDef.IconColor,
                     mouseoverGuiAction: r => TooltipHandler.TipRegion(r, local.descriptionShort ?? local.description),
@@ -130,7 +184,7 @@ namespace JustStart
                 CustomXenotype local = custom;
                 options.Add(new FloatMenuOption(Label(new Choice(local)), () =>
                     {
-                        Settings.mixedXenotypes = false;
+                        Settings.xenotypeMode = StartingXenotypeMode.Custom;
                         Settings.startingCustomXenotype = local.fileName;
                     },
                     local.IconDef.Icon, XenotypeDef.IconColor));

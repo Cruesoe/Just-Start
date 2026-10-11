@@ -38,7 +38,7 @@ namespace JustStart
             listing.CheckboxLabeled(
                 "JustStart_SettingsExcludeExtremeLabel".Translate(),
                 ref Settings.excludeExtremeBiomes,
-                "JustStart_SettingsExcludeExtremeTooltip".Translate(ExtremeBiomeList()));
+                "JustStart_SettingsExcludeExtremeTooltip".Translate(ExtremeBiomeList));
 
             Heading(listing, "JustStart_SettingsSectionIdeoligion".Translate());
             Rect row = listing.GetRect(30f);
@@ -73,7 +73,7 @@ namespace JustStart
             listing.Gap(4f);
             Rect customRow = listing.GetRect(Text.LineHeight);
             customRow.xMin += IndentWidth;
-            bool customActive = biotech && Settings.mixedXenotypes;
+            bool customActive = biotech && Settings.xenotypeMode == StartingXenotypeMode.Mixed;
             Widgets.CheckboxLabeled(customRow, "JustStart_SettingsMixedCustomLabel".Translate(), ref Settings.mixedIncludesCustom, disabled: !customActive);
             TooltipHandler.TipRegion(customRow, !biotech
                 ? "JustStart_SettingsXenotypeRequiresBiotech".Translate()
@@ -99,40 +99,10 @@ namespace JustStart
             listing.GapLine(6f);
         }
 
-        // Every loaded biome the game warns about when settling there, including other mods' biomes.
-        private static string ExtremeBiomeList() =>
-            DefDatabase<BiomeDef>.AllDefs.Where(TileSelector.IsExtreme).Select(b => b.LabelCap.Resolve()).ToLineList("  - ");
-    }
+        // Every loaded biome the game warns about when settling there, including other mods' biomes; built once, as Defs don't change after load.
+        private static string? extremeBiomeList;
 
-    public class JustStartSettings : ModSettings
-    {
-        /// <summary>When on, biomes with a settle warning are never picked. Off by default.</summary>
-        public bool excludeExtremeBiomes = false;
-
-        /// <summary>Ideoligion mode for the player; only used with Ideology active.</summary>
-        public IdeologyMode defaultIdeologyMode = IdeologyMode.Fixed;
-
-        /// <summary>defName of the xenotype every starting colonist gets; only used with Biotech active.</summary>
-        public string startingXenotype = "Baseliner";
-
-        /// <summary>File name of the custom xenotype every starting colonist gets; empty to use startingXenotype.</summary>
-        public string startingCustomXenotype = string.Empty;
-
-        /// <summary>When on, each starting colonist gets a random xenotype instead.</summary>
-        public bool mixedXenotypes = false;
-
-        /// <summary>When on, mixed also picks from the player's custom xenotypes.</summary>
-        public bool mixedIncludesCustom = false;
-
-        public override void ExposeData()
-        {
-            Scribe_Values.Look(ref excludeExtremeBiomes, "excludeExtremeBiomes", false);
-            Scribe_Values.Look(ref defaultIdeologyMode, "defaultIdeologyMode", IdeologyMode.Fixed);
-            Scribe_Values.Look(ref startingXenotype, "startingXenotype", "Baseliner");
-            Scribe_Values.Look(ref startingCustomXenotype, "startingCustomXenotype", string.Empty);
-            Scribe_Values.Look(ref mixedXenotypes, "mixedXenotypes", false);
-            Scribe_Values.Look(ref mixedIncludesCustom, "mixedIncludesCustom", false);
-            base.ExposeData();
-        }
+        private static string ExtremeBiomeList =>
+            extremeBiomeList ??= DefDatabase<BiomeDef>.AllDefs.Where(TileSelector.IsExtreme).Select(b => b.LabelCap.Resolve()).ToLineList("  - ");
     }
 }

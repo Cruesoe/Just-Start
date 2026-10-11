@@ -31,7 +31,7 @@ namespace JustStart
         private static void RunInner(Action onFailure)
         {
             // Forced-map scenarios already chose their tile and map generator during world generation.
-            if (!Find.Scenario.AllParts.OfType<ScenPart_ForcedMap>().Any())
+            if (!JustStartGameStartHook.HasForcedMap(Find.Scenario))
             {
                 if (!TileSelector.TryFindTile(out PlanetTile tile))
                 {
