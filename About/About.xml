@@ -24,6 +24,7 @@ Right-click the Just Start button, or use the mod settings menu.
 - Starting xenotype (Biotech only, Baseliner by default): every colonist gets the xenotype you pick, including your own custom xenotypes; or Mixed, a random xenotype for each colonist (optionally including custom xenotypes); or Scenario's choice, which keeps the scenario's xenotypes.</description>
   <supportedVersions>
     <li>1.6</li>
+    <li>1.7</li>
   </supportedVersions>
   <modDependencies>
     <li>
