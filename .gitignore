@@ -3,8 +3,6 @@ obj/
 *.user
 *.suo
 *.pdb
-1.6/Assemblies/*.dll
-1.7/Assemblies/*.dll
 .vs/
 Directory.Build.props
 Directory.Build.targets
