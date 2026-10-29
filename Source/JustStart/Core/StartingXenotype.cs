@@ -10,6 +10,7 @@ namespace JustStart
     /// The starting xenotype setting: one xenotype or custom xenotype for every colonist, a random one each (mixed), or the
     /// scenario's own. Needs Biotech.
     /// </summary>
+    [StaticConstructorOnStartup]
     public static class StartingXenotype
     {
         /// <summary>One choice: a xenotype def, or a custom xenotype from the xenotype editor.</summary>
