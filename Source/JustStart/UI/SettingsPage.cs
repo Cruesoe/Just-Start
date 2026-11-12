@@ -55,6 +55,8 @@ namespace JustStart
             listing.Begin(rect);
 
             Heading(listing, Tr("JustStart_SettingsSectionSite"));
+            if (ButtonRow(listing, "JustStart_SettingsBiomesLabel", BiomeCount(Settings.allowedBiomes.Count), "JustStart_SettingsBiomesTooltip", true))
+                OpenBiomeDialog();
             CheckboxWithTip(listing, "JustStart_SettingsExcludeExtremeLabel", ref Settings.excludeExtremeBiomes, ExtremeBiomeTooltip);
 
             listing.Gap(GroupGap);
@@ -289,7 +291,7 @@ namespace JustStart
 
         private static void OpenTraitDialog()
         {
-            var entries = new List<Dialog_ExclusionList.Entry>();
+            var entries = new List<Dialog_Checklist.Entry>();
             foreach (TraitDef def in DefDatabase<TraitDef>.AllDefs)
             {
                 // Only traits random generation can give.
@@ -298,11 +300,11 @@ namespace JustStart
                 foreach (TraitDegreeData degree in def.degreeDatas)
                 {
                     if (degree.commonality > 0f && !degree.label.NullOrEmpty())
-                        entries.Add(new Dialog_ExclusionList.Entry(StartingPawnFilters.TraitKey(def, degree.degree), degree.LabelCap, null));
+                        entries.Add(new Dialog_Checklist.Entry(StartingPawnFilters.TraitKey(def, degree.degree), degree.LabelCap, null));
                 }
             }
             entries.SortBy(e => e.Label);
-            Find.WindowStack.Add(new Dialog_ExclusionList(Tr("JustStart_SettingsTraitsLabel"), entries, Settings.excludedTraits));
+            Find.WindowStack.Add(new Dialog_Checklist(Tr("JustStart_SettingsTraitsLabel"), Tr("JustStart_ChecklistTickToExclude"), entries, Settings.excludedTraits));
         }
 
         private static void OpenMemeDialog()
@@ -310,9 +312,21 @@ namespace JustStart
             var entries = DefDatabase<MemeDef>.AllDefs
                 .Where(m => m.category == MemeCategory.Normal && !m.hiddenInChooseMemes)
                 .OrderBy(m => m.label)
-                .Select(m => new Dialog_ExclusionList.Entry(m.defName, m.LabelCap.Resolve(), m.description, m.Icon))
+                .Select(m => new Dialog_Checklist.Entry(m.defName, m.LabelCap.Resolve(), m.description, m.Icon))
                 .ToList();
-            Find.WindowStack.Add(new Dialog_ExclusionList(Tr("JustStart_SettingsMemesLabel"), entries, Settings.excludedMemes));
+            Find.WindowStack.Add(new Dialog_Checklist(Tr("JustStart_SettingsMemesLabel"), Tr("JustStart_ChecklistTickToExclude"), entries, Settings.excludedMemes));
+        }
+
+        private static void OpenBiomeDialog()
+        {
+            string? extremeReason = Settings.excludeExtremeBiomes ? Tr("JustStart_SettingsBiomeExcludedExtreme") : null;
+            var entries = DefDatabase<BiomeDef>.AllDefs
+                .Where(TileSelector.CanStartIn)
+                .OrderBy(b => b.label)
+                .Select(b => new Dialog_Checklist.Entry(b.defName, b.LabelCap.Resolve(), b.description, null,
+                    TileSelector.IsExtreme(b) ? extremeReason : null))
+                .ToList();
+            Find.WindowStack.Add(new Dialog_Checklist(Tr("JustStart_SettingsBiomesLabel"), Tr("JustStart_ChecklistTickToAllow"), entries, Settings.allowedBiomes));
         }
 
         // Text, cached per language; value labels are cached per value.
@@ -322,6 +336,7 @@ namespace JustStart
         private static readonly Dictionary<int, string> growingValues = new Dictionary<int, string>();
         private static readonly Dictionary<int, string> hostileValues = new Dictionary<int, string>();
         private static readonly Dictionary<int, string> countValues = new Dictionary<int, string>();
+        private static readonly Dictionary<int, string> biomeCounts = new Dictionary<int, string>();
         private static readonly Dictionary<int, string> memeCounts = new Dictionary<int, string>();
         private static readonly Dictionary<int, string> traitCounts = new Dictionary<int, string>();
         private static readonly Dictionary<IdeologyMode, string> modeLabels = new Dictionary<IdeologyMode, string>();
@@ -336,6 +351,9 @@ namespace JustStart
 
         private static readonly Func<int, string> CountValue = count =>
             Cached(countValues, count, c => c == 0 ? Tr("JustStart_ValueAny") : c.ToString());
+
+        private static string BiomeCount(int count) =>
+            Cached(biomeCounts, count, c => c == 0 ? Tr("JustStart_ValueAny") : "JustStart_ValueSelected".Translate(c).Resolve());
 
         private static string MemeCount(int count) =>
             Cached(memeCounts, count, c => c == 0 ? Tr("JustStart_ValueNone") : "JustStart_ValueMemes".Translate(c).Resolve());
@@ -382,6 +400,7 @@ namespace JustStart
             growingValues.Clear();
             hostileValues.Clear();
             countValues.Clear();
+            biomeCounts.Clear();
             memeCounts.Clear();
             traitCounts.Clear();
             modeLabels.Clear();

@@ -32,6 +32,7 @@ namespace JustStart
             WorldGrid grid = Find.WorldGrid;
             PlanetLayer surface = grid.Surface;
             SimpleCurve? temperatureCurve = Faction.OfPlayer.def.minSettlementTemperatureChanceCurve;
+            HashSet<BiomeDef>? allowedBiomes = AllowedBiomes(settings);
 
             var tiles = new List<PlanetTile>();
             var weights = new List<float>();
@@ -41,7 +42,9 @@ namespace JustStart
                 var tile = new PlanetTile(i, surface);
                 Tile data = grid[tile];
                 BiomeDef biome = data.PrimaryBiome;
-                if (!biome.canBuildBase || !biome.implemented || !biome.canAutoChoose || data.hilliness == Hilliness.Impassable)
+                if (!CanStartIn(biome) || data.hilliness == Hilliness.Impassable)
+                    continue;
+                if (allowedBiomes != null && !allowedBiomes.Contains(biome))
                     continue;
                 if (!PassesQuickFilters(data, biome, settings))
                     continue;
@@ -79,6 +82,21 @@ namespace JustStart
 
             chosen = PlanetTile.Invalid;
             return false;
+        }
+
+        /// <summary>Biomes a random starting site can be in, as vanilla's "Select random site" allows.</summary>
+        public static bool CanStartIn(BiomeDef biome) => biome.canBuildBase && biome.implemented && biome.canAutoChoose;
+
+        /// <summary>The ticked biomes still loaded; null allows any, including when none of the ticked biomes are loaded any more.</summary>
+        private static HashSet<BiomeDef>? AllowedBiomes(JustStartSettings settings)
+        {
+            var result = new HashSet<BiomeDef>();
+            foreach (string name in settings.allowedBiomes)
+            {
+                if (DefDatabase<BiomeDef>.GetNamedSilentFail(name) is BiomeDef biome)
+                    result.Add(biome);
+            }
+            return result.Count > 0 ? result : null;
         }
 
         /// <summary>False for the full slider range, which allows any temperature.</summary>

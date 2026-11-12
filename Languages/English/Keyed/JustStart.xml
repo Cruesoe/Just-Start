@@ -14,9 +14,17 @@
   <JustStart_ValueNone>None</JustStart_ValueNone>
   <JustStart_ValueDays>At least {0} days</JustStart_ValueDays>
   <JustStart_ValueTiles>At least {0} tiles away</JustStart_ValueTiles>
+  <JustStart_ValueSelected>{0} selected</JustStart_ValueSelected>
   <JustStart_ValueMemes>{0} excluded</JustStart_ValueMemes>
   <JustStart_ValueTraits>{0} excluded</JustStart_ValueTraits>
 
+  <JustStart_ChecklistClear>Clear all</JustStart_ChecklistClear>
+  <JustStart_ChecklistTickToAllow>Tick to allow. None ticked allows all.</JustStart_ChecklistTickToAllow>
+  <JustStart_ChecklistTickToExclude>Tick to exclude.</JustStart_ChecklistTickToExclude>
+
+  <JustStart_SettingsBiomesLabel>Biomes</JustStart_SettingsBiomesLabel>
+  <JustStart_SettingsBiomesTooltip>Only start in one of the ticked biomes. With none ticked, any biome can be picked. Biomes vanilla never picks at random, and any excluded below, are still left out.</JustStart_SettingsBiomesTooltip>
+  <JustStart_SettingsBiomeExcludedExtreme>Excluded by Exclude extreme biomes.</JustStart_SettingsBiomeExcludedExtreme>
   <JustStart_SettingsExcludeExtremeLabel>Exclude extreme biomes</JustStart_SettingsExcludeExtremeLabel>
   <JustStart_SettingsExcludeExtremeTooltip>Never start in a biome the game warns about when you settle there:\n{0}</JustStart_SettingsExcludeExtremeTooltip>
 
@@ -76,7 +84,6 @@
   <JustStart_SettingsMajorPassionsTooltip>The fewest major (burning) passions each starting colonist has.</JustStart_SettingsMajorPassionsTooltip>
   <JustStart_SettingsTraitsLabel>Excluded traits</JustStart_SettingsTraitsLabel>
   <JustStart_SettingsTraitsTooltip>Traits starting colonists never have.</JustStart_SettingsTraitsTooltip>
-  <JustStart_ExclusionClear>Clear all</JustStart_ExclusionClear>
 
   <JustStart_SettingsCapableLabel>Capable of all work</JustStart_SettingsCapableLabel>
   <JustStart_SettingsCapableTooltip>Starting colonists have no disabled work, from backstories, traits, genes or health.</JustStart_SettingsCapableTooltip>

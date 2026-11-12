@@ -20,6 +20,7 @@ Right-click the Just Start button, or use the mod settings menu. Every filter is
 
 [h3]Starting site[/h3]
 [list]
+[*][b]Biomes[/b]: pick one or more biomes to start in, or leave them all unticked for any biome.
 [*][b]Exclude extreme biomes[/b]: never start in a biome the game warns you about when settling, such as ice sheet, sea ice or extreme desert. The tooltip lists every biome this covers, including those from other mods.
 [*][b]Allowed terrain[/b]: flat, small hills, large hills and mountainous.
 [*][b]Required features[/b]: a river, a coast or a road.

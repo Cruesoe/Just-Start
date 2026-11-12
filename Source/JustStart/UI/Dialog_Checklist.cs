@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace JustStart
 {
-    /// <summary>A scrolling checklist of things to exclude; ticked entries' keys are kept in the given settings list.</summary>
-    public class Dialog_ExclusionList : Window
+    /// <summary>A scrolling checklist; ticked entries' keys are kept in the given settings list.</summary>
+    public class Dialog_Checklist : Window
     {
         public readonly struct Entry
         {
@@ -14,13 +13,16 @@ namespace JustStart
             public readonly string Label;
             public readonly string? Tooltip;
             public readonly Texture2D? Icon;
+            /// <summary>When set, the entry is greyed out and inert, with this as its tooltip.</summary>
+            public readonly string? DisabledReason;
 
-            public Entry(string key, string label, string? tooltip, Texture2D? icon = null)
+            public Entry(string key, string label, string? tooltip, Texture2D? icon = null, string? disabledReason = null)
             {
                 Key = key;
                 Label = label;
                 Tooltip = tooltip;
                 Icon = icon;
+                DisabledReason = disabledReason;
             }
         }
 
@@ -29,17 +31,19 @@ namespace JustStart
         private const float IconSize = 24f;
 
         private readonly string title;
+        private readonly string? description;
         private readonly string clearLabel;
         private readonly List<Entry> entries;
-        private readonly List<string> excluded;
+        private readonly List<string> ticked;
         private Vector2 scroll;
 
-        public Dialog_ExclusionList(string title, List<Entry> entries, List<string> excluded)
+        public Dialog_Checklist(string title, string? description, List<Entry> entries, List<string> ticked)
         {
             this.title = title;
+            this.description = description;
             this.entries = entries;
-            this.excluded = excluded;
-            clearLabel = "JustStart_ExclusionClear".Translate();
+            this.ticked = ticked;
+            clearLabel = "JustStart_ChecklistClear".Translate();
             doCloseButton = true;
             doCloseX = true;
             closeOnClickedOutside = true;
@@ -55,8 +59,15 @@ namespace JustStart
             Text.Font = GameFont.Small;
 
             Rect clearRect = new Rect(inRect.xMax - 120f, inRect.y + 40f, 120f, 30f);
-            if (Widgets.ButtonText(clearRect, clearLabel, active: excluded.Count > 0))
-                excluded.Clear();
+            if (description != null)
+            {
+                TextAnchor anchor = Text.Anchor;
+                Text.Anchor = TextAnchor.MiddleLeft;
+                Widgets.Label(new Rect(inRect.x, clearRect.y, clearRect.x - inRect.x - 10f, clearRect.height), description);
+                Text.Anchor = anchor;
+            }
+            if (Widgets.ButtonText(clearRect, clearLabel, active: ticked.Count > 0))
+                ticked.Clear();
 
             Rect outRect = new Rect(inRect.x, clearRect.yMax + 6f, inRect.width, inRect.height - (clearRect.yMax + 6f - inRect.y) - CloseButSize.y - 10f);
             Rect viewRect = new Rect(0f, 0f, outRect.width - 16f, entries.Count * RowHeight);
@@ -86,18 +97,20 @@ namespace JustStart
             else
                 labelRect.xMin += 4f;
 
-            bool wasExcluded = excluded.Contains(entry.Key);
-            bool isExcluded = wasExcluded;
-            Widgets.CheckboxLabeled(labelRect, entry.Label, ref isExcluded);
-            if (isExcluded != wasExcluded)
+            bool disabled = entry.DisabledReason != null;
+            bool wasTicked = ticked.Contains(entry.Key);
+            bool isTicked = wasTicked;
+            Widgets.CheckboxLabeled(labelRect, entry.Label, ref isTicked, disabled);
+            if (isTicked != wasTicked)
             {
-                if (isExcluded)
-                    excluded.Add(entry.Key);
+                if (isTicked)
+                    ticked.Add(entry.Key);
                 else
-                    excluded.Remove(entry.Key);
+                    ticked.Remove(entry.Key);
             }
-            if (entry.Tooltip != null)
-                TooltipHandler.TipRegion(row, entry.Tooltip);
+            string? tip = entry.DisabledReason ?? entry.Tooltip;
+            if (tip != null)
+                TooltipHandler.TipRegion(row, tip);
         }
     }
 }
