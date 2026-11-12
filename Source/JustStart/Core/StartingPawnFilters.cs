@@ -47,7 +47,7 @@ namespace JustStart
             JustStartSettings settings = JustStartMod.Settings;
             var next = new RunSettings
             {
-                AgeRange = IsFullAgeRange(settings.startingAgeRange) ? (IntRange?)null : ClampedRange(settings.startingAgeRange),
+                AgeRange = IsFullAgeRange(settings.startingAgeRange) ? (IntRange?)null : WithinScenarioAges(ClampedRange(settings.startingAgeRange)),
                 GenderMix = settings.genderMix,
                 RequireCapable = settings.requireCapableColonists,
                 RequireViolence = settings.requireViolenceCapable,
@@ -67,6 +67,24 @@ namespace JustStart
             int min = Math.Max(MinAge, Math.Min(range.min, MaxAge));
             int max = Math.Max(min, Math.Min(range.max, MaxAge));
             return new IntRange(min, max);
+        }
+
+        /// <summary>
+        /// The overlap with every age filter the scenario has (ScenPart_PawnFilter_Age), which rejects starting colonists
+        /// outside its range; null leaves age to the scenario when they don't overlap.
+        /// </summary>
+        private static IntRange? WithinScenarioAges(IntRange range)
+        {
+            int min = range.min, max = range.max;
+            foreach (ScenPart part in Find.Scenario.AllParts)
+            {
+                if (part is ScenPart_PawnFilter_Age filter)
+                {
+                    min = Math.Max(min, filter.allowedAgeRange.min);
+                    max = Math.Min(max, filter.allowedAgeRange.max);
+                }
+            }
+            return min <= max ? new IntRange(min, max) : (IntRange?)null;
         }
 
         public static bool IsFullAgeRange(IntRange range)

@@ -10,7 +10,7 @@ namespace JustStart
     /// on the page's first GUI frame instead.
     /// </summary>
     [HarmonyPatch(typeof(Page_SelectStartingSite), "PreOpen")]
-    public static class Patch_Page_SelectStartingSite_PreOpen_SkipIfAutoStart
+    public static class Patch_Page_SelectStartingSite_PreOpen
     {
         public static bool Prefix(Page_SelectStartingSite __instance)
         {

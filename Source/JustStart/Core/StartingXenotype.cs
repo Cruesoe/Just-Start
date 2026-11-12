@@ -44,6 +44,31 @@ namespace JustStart
             cacheLanguage = LanguageDatabase.activeLanguage;
             mixedIcon = null;
             customXenotypes = null;
+            buttonCacheValid = false;
+        }
+
+        // The button's label and icon, rebuilt when the choice, the language or the loaded custom xenotypes change.
+        private static bool buttonCacheValid;
+        private static StartingXenotypeMode buttonMode;
+        private static string? buttonXenotype;
+        private static string? buttonCustom;
+        private static string buttonLabel = string.Empty;
+        private static Texture2D? buttonIcon;
+        private static string buttonTruncated = string.Empty;
+        private static float buttonTruncatedWidth = -1f;
+
+        private static void RefreshButtonCache()
+        {
+            ClearCachesIfReloaded();
+            if (buttonCacheValid && buttonMode == Mode && buttonXenotype == Settings.startingXenotype && buttonCustom == Settings.startingCustomXenotype)
+                return;
+            buttonCacheValid = true;
+            buttonMode = Mode;
+            buttonXenotype = Settings.startingXenotype;
+            buttonCustom = Settings.startingCustomXenotype;
+            buttonLabel = CurrentLabel;
+            buttonIcon = CurrentIcon;
+            buttonTruncatedWidth = -1f;
         }
 
         private static Texture2D MixedIcon
@@ -124,9 +149,26 @@ namespace JustStart
                 return;
             customXenotypes = null;
             if (Mode == StartingXenotypeMode.Mixed)
+            {
                 runChoices.AddRange(MixedPool);
+                // Xenotypes whose genes disable work the colonist filters require would only be accepted after every retry fails.
+                if ((Settings.requireCapableColonists || Settings.requireViolenceCapable) && runChoices.Any(c => !DisablesRequiredWork(c)))
+                    runChoices.RemoveAll(DisablesRequiredWork);
+            }
             else if (Mode != StartingXenotypeMode.Scenario && Selected is Choice selected)
                 runChoices.Add(selected);
+        }
+
+        /// <summary>Whether the choice's genes disable work that Capable of all work or Capable of violence requires.</summary>
+        private static bool DisablesRequiredWork(Choice choice)
+        {
+            List<GeneDef>? genes = choice.Custom != null ? choice.Custom.genes : choice.Def?.genes;
+            if (genes == null)
+                return false;
+            WorkTags tags = WorkTags.None;
+            foreach (GeneDef gene in genes)
+                tags |= gene.disabledWorkTags;
+            return Settings.requireCapableColonists ? tags != WorkTags.None : (tags & WorkTags.Violent) != 0;
         }
 
         /// <summary>Forces the next starting colonist's xenotype from the choices fixed by PrepareRun.</summary>
@@ -201,6 +243,7 @@ namespace JustStart
         public static void OpenMenu()
         {
             customXenotypes = null;
+            buttonCacheValid = false;
             var options = new List<FloatMenuOption>
             {
                 // ClearTex keeps the label aligned with the icon entries below.
@@ -241,9 +284,10 @@ namespace JustStart
         /// <summary>A button showing the current choice's icon to the left of its name.</summary>
         public static bool DrawButton(Rect rect, bool active)
         {
+            RefreshButtonCache();
             bool clicked = Widgets.ButtonText(rect, string.Empty, active: active);
             Rect iconRect = new Rect(rect.x + 6f, rect.y + (rect.height - 24f) / 2f, 24f, 24f);
-            Texture2D? icon = CurrentIcon;
+            Texture2D? icon = buttonIcon;
             Color oldColor = GUI.color;
             if (icon != null)
             {
@@ -254,7 +298,12 @@ namespace JustStart
             Rect labelRect = new Rect(iconRect.xMax + 6f, rect.y, rect.xMax - iconRect.xMax - 12f, rect.height);
             TextAnchor oldAnchor = Text.Anchor;
             Text.Anchor = TextAnchor.MiddleLeft;
-            Widgets.Label(labelRect, CurrentLabel.Truncate(labelRect.width));
+            if (buttonTruncatedWidth != labelRect.width)
+            {
+                buttonTruncatedWidth = labelRect.width;
+                buttonTruncated = buttonLabel.Truncate(labelRect.width);
+            }
+            Widgets.Label(labelRect, buttonTruncated);
             Text.Anchor = oldAnchor;
             GUI.color = oldColor;
             return clicked && active;

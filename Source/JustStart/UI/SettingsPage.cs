@@ -134,6 +134,9 @@ namespace JustStart
                 Settings.minPassions, 0, StartingPawnFilters.MaxPassions, 1, CountValue);
             Settings.minMajorPassions = SteppedSlider(listing, "JustStart_SettingsMajorPassionsLabel", "JustStart_SettingsMajorPassionsTooltip",
                 Settings.minMajorPassions, 0, StartingPawnFilters.MaxMajorPassions, 1, CountValue);
+            // Major passions count as passions, so the minimum never sits below the major minimum.
+            if (Settings.minPassions < Settings.minMajorPassions)
+                Settings.minPassions = Settings.minMajorPassions;
             if (ButtonRow(listing, "JustStart_SettingsTraitsLabel", TraitCount(Settings.excludedTraits.Count), "JustStart_SettingsTraitsTooltip", true))
                 OpenTraitDialog();
 

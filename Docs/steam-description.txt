@@ -18,7 +18,7 @@ You never see the site picker, the ideoligion screen or the colonist screen. Sea
 [h2]Settings[/h2]
 Right-click the Just Start button, or use the mod settings menu. Every filter is off by default, and [b]Reset to defaults[/b] turns them all off again.
 
-[h3]Starting site[/h3]
+[b]Starting site[/b]
 [list]
 [*][b]Biomes[/b]: pick one or more biomes to start in, or leave them all unticked for any biome.
 [*][b]Exclude extreme biomes[/b]: never start in a biome the game warns you about when settling, such as ice sheet, sea ice or extreme desert. The tooltip lists every biome this covers, including those from other mods.
@@ -29,13 +29,13 @@ Right-click the Just Start button, or use the mod settings menu. Every filter is
 [*][b]Hostile settlements[/b]: how far the site must be from any hostile faction's settlement.
 [/list]
 
-[h3]Ideoligion (Ideology only)[/h3]
+[b]Ideoligion (Ideology only)[/b]
 [list]
 [*][b]Ideoligion mode[/b]: a classic ideoligion, a random fixed one, a random fluid one, or classic mode for every faction.
 [*][b]Excluded memes[/b]: memes your random ideoligion never gets.
 [/list]
 
-[h3]Colonists[/h3]
+[b]Colonists[/b]
 [list]
 [*][b]Starting xenotype[/b] (Biotech only, Baseliner by default): every colonist gets the xenotype you pick, including your own custom xenotypes. Or choose [b]Mixed[/b] for a random xenotype for each colonist (optionally including custom xenotypes), or [b]Scenario's choice[/b] to keep the scenario's xenotypes, such as the sanguophage in The Sanguophage.
 [*][b]Age[/b]: the biological age range of your colonists.
