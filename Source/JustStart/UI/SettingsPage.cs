@@ -55,7 +55,7 @@ namespace JustStart
             listing.Begin(rect);
 
             Heading(listing, Tr("JustStart_SettingsSectionSite"));
-            if (ButtonRow(listing, "JustStart_SettingsBiomesLabel", BiomeCount(Settings.allowedBiomes.Count), "JustStart_SettingsBiomesTooltip", true))
+            if (ButtonRow(listing, "JustStart_SettingsBiomesLabel", BiomeCount(Settings.excludedBiomes.Count), "JustStart_SettingsBiomesTooltip", true))
                 OpenBiomeDialog();
             CheckboxWithTip(listing, "JustStart_SettingsExcludeExtremeLabel", ref Settings.excludeExtremeBiomes, ExtremeBiomeTooltip);
 
@@ -329,7 +329,7 @@ namespace JustStart
                 .Select(b => new Dialog_Checklist.Entry(b.defName, b.LabelCap.Resolve(), b.description, null,
                     TileSelector.IsExtreme(b) ? extremeReason : null))
                 .ToList();
-            Find.WindowStack.Add(new Dialog_Checklist(Tr("JustStart_SettingsBiomesLabel"), Tr("JustStart_ChecklistTickToAllow"), entries, Settings.allowedBiomes));
+            Find.WindowStack.Add(new Dialog_Checklist(Tr("JustStart_SettingsBiomesLabel"), Tr("JustStart_ChecklistUntickToExclude"), entries, Settings.excludedBiomes, keysAreUnticked: true));
         }
 
         // Text, cached per language; value labels are cached per value.
@@ -356,7 +356,7 @@ namespace JustStart
             Cached(countValues, count, c => c == 0 ? Tr("JustStart_ValueAny") : c.ToString());
 
         private static string BiomeCount(int count) =>
-            Cached(biomeCounts, count, c => c == 0 ? Tr("JustStart_ValueAny") : "JustStart_ValueSelected".Translate(c).Resolve());
+            Cached(biomeCounts, count, c => c == 0 ? Tr("JustStart_ValueAll") : "JustStart_ValueExcluded".Translate(c).Resolve());
 
         private static string MemeCount(int count) =>
             Cached(memeCounts, count, c => c == 0 ? Tr("JustStart_ValueNone") : "JustStart_ValueMemes".Translate(c).Resolve());

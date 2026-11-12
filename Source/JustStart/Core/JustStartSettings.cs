@@ -7,8 +7,8 @@ namespace JustStart
     {
         // Starting site
 
-        /// <summary>defNames of the biomes the site may be in; empty allows any.</summary>
-        public List<string> allowedBiomes = new List<string>();
+        /// <summary>defNames of the biomes the site may not be in; empty allows every biome, including ones added later.</summary>
+        public List<string> excludedBiomes = new List<string>();
 
         /// <summary>When on, biomes with a settle warning are never picked. Off by default.</summary>
         public bool excludeExtremeBiomes = false;
@@ -75,7 +75,7 @@ namespace JustStart
         public void ResetToDefaults()
         {
             var defaults = new JustStartSettings();
-            allowedBiomes = defaults.allowedBiomes;
+            excludedBiomes = defaults.excludedBiomes;
             excludeExtremeBiomes = defaults.excludeExtremeBiomes;
             allowFlat = defaults.allowFlat;
             allowSmallHills = defaults.allowSmallHills;
@@ -107,7 +107,7 @@ namespace JustStart
 
         public override void ExposeData()
         {
-            Scribe_Collections.Look(ref allowedBiomes, "allowedBiomes", LookMode.Value);
+            Scribe_Collections.Look(ref excludedBiomes, "excludedBiomes", LookMode.Value);
             Scribe_Values.Look(ref excludeExtremeBiomes, "excludeExtremeBiomes", false);
             Scribe_Values.Look(ref allowFlat, "allowFlat", true);
             Scribe_Values.Look(ref allowSmallHills, "allowSmallHills", true);
@@ -138,7 +138,7 @@ namespace JustStart
             // An empty or missing list loads as null.
             if (Scribe.mode != LoadSaveMode.Saving)
             {
-                allowedBiomes ??= new List<string>();
+                excludedBiomes ??= new List<string>();
                 excludedMemes ??= new List<string>();
                 excludedTraits ??= new List<string>();
             }

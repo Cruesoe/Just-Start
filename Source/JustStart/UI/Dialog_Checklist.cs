@@ -4,7 +4,7 @@ using Verse;
 
 namespace JustStart
 {
-    /// <summary>A scrolling checklist; ticked entries' keys are kept in the given settings list.</summary>
+    /// <summary>A scrolling checklist; ticked (or unticked) entries' keys are kept in the given settings list.</summary>
     public class Dialog_Checklist : Window
     {
         public readonly struct Entry
@@ -34,16 +34,19 @@ namespace JustStart
         private readonly string? description;
         private readonly string clearLabel;
         private readonly List<Entry> entries;
-        private readonly List<string> ticked;
+        private readonly List<string> keys;
+        private readonly bool keysAreUnticked;
         private Vector2 scroll;
 
-        public Dialog_Checklist(string title, string? description, List<Entry> entries, List<string> ticked)
+        /// <param name="keys">The settings list: ticked entries' keys, or unticked entries' keys when keysAreUnticked is set.</param>
+        public Dialog_Checklist(string title, string? description, List<Entry> entries, List<string> keys, bool keysAreUnticked = false)
         {
             this.title = title;
             this.description = description;
             this.entries = entries;
-            this.ticked = ticked;
-            clearLabel = "JustStart_ChecklistClear".Translate();
+            this.keys = keys;
+            this.keysAreUnticked = keysAreUnticked;
+            clearLabel = (keysAreUnticked ? "JustStart_ChecklistTickAll" : "JustStart_ChecklistClear").Translate();
             doCloseButton = true;
             doCloseX = true;
             closeOnClickedOutside = true;
@@ -66,8 +69,8 @@ namespace JustStart
                 Widgets.Label(new Rect(inRect.x, clearRect.y, clearRect.x - inRect.x - 10f, clearRect.height), description);
                 Text.Anchor = anchor;
             }
-            if (Widgets.ButtonText(clearRect, clearLabel, active: ticked.Count > 0))
-                ticked.Clear();
+            if (Widgets.ButtonText(clearRect, clearLabel, active: keys.Count > 0))
+                keys.Clear();
 
             Rect outRect = new Rect(inRect.x, clearRect.yMax + 6f, inRect.width, inRect.height - (clearRect.yMax + 6f - inRect.y) - CloseButSize.y - 10f);
             Rect viewRect = new Rect(0f, 0f, outRect.width - 16f, entries.Count * RowHeight);
@@ -98,15 +101,15 @@ namespace JustStart
                 labelRect.xMin += 4f;
 
             bool disabled = entry.DisabledReason != null;
-            bool wasTicked = ticked.Contains(entry.Key);
+            bool wasTicked = keys.Contains(entry.Key) != keysAreUnticked;
             bool isTicked = wasTicked;
             Widgets.CheckboxLabeled(labelRect, entry.Label, ref isTicked, disabled);
             if (isTicked != wasTicked)
             {
-                if (isTicked)
-                    ticked.Add(entry.Key);
+                if (isTicked != keysAreUnticked)
+                    keys.Add(entry.Key);
                 else
-                    ticked.Remove(entry.Key);
+                    keys.Remove(entry.Key);
             }
             string? tip = entry.DisabledReason ?? entry.Tooltip;
             if (tip != null)
