@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
-using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -26,117 +22,10 @@ namespace JustStart
 
         public override string SettingsCategory() => "Just Start";
 
-        private static string ModeLabel(IdeologyMode mode) => ("JustStart_IdeologyMode" + mode).Translate();
-
         public override void DoSettingsWindowContents(Rect inRect)
         {
-            var listing = new Listing_Standard();
-            listing.Begin(inRect);
-            listing.ColumnWidth = Mathf.Min(inRect.width, SettingsColumnWidth);
-
-            Heading(listing, "JustStart_SettingsSectionSite".Translate());
-            listing.CheckboxLabeled(
-                "JustStart_SettingsExcludeExtremeLabel".Translate(),
-                ref Settings.excludeExtremeBiomes,
-                "JustStart_SettingsExcludeExtremeTooltip".Translate(ExtremeBiomeList));
-
-            Heading(listing, "JustStart_SettingsSectionIdeoligion".Translate());
-            Rect row = listing.GetRect(30f);
-            Widgets.Label(row.LeftHalf(), "JustStart_SettingsDefaultIdeologyLabel".Translate());
-            if (ModsConfig.IdeologyActive)
-            {
-                TooltipHandler.TipRegion(row, "JustStart_SettingsDefaultIdeologyTooltip".Translate());
-                if (Widgets.ButtonText(row.RightHalf(), ModeLabel(Settings.defaultIdeologyMode)))
-                {
-                    var options = new List<FloatMenuOption>();
-                    foreach (IdeologyMode mode in Enum.GetValues(typeof(IdeologyMode)))
-                        options.Add(new FloatMenuOption(ModeLabel(mode), () => Settings.defaultIdeologyMode = mode));
-                    Find.WindowStack.Add(new FloatMenu(options));
-                }
-            }
-            else
-            {
-                TooltipHandler.TipRegion(row, "JustStart_SettingsDefaultIdeologyRequiresIdeology".Translate());
-                Widgets.ButtonText(row.RightHalf(), ModeLabel(Settings.defaultIdeologyMode), active: false);
-            }
-
-            Heading(listing, "JustStart_SettingsSectionColonists".Translate());
-            bool biotech = ModsConfig.BiotechActive;
-            Rect xenotypeRow = listing.GetRect(30f);
-            Widgets.Label(xenotypeRow.LeftHalf(), "JustStart_SettingsXenotypeLabel".Translate());
-            TooltipHandler.TipRegion(xenotypeRow, biotech
-                ? "JustStart_SettingsXenotypeTooltip".Translate()
-                : "JustStart_SettingsXenotypeRequiresBiotech".Translate());
-            if (StartingXenotype.DrawButton(xenotypeRow.RightHalf(), biotech))
-                StartingXenotype.OpenMenu();
-
-            listing.Gap(4f);
-            Rect customRow = listing.GetRect(Text.LineHeight);
-            customRow.xMin += IndentWidth;
-            bool customActive = biotech && Settings.xenotypeMode == StartingXenotypeMode.Mixed;
-            Widgets.CheckboxLabeled(customRow, "JustStart_SettingsMixedCustomLabel".Translate(), ref Settings.mixedIncludesCustom, disabled: !customActive);
-            TooltipHandler.TipRegion(customRow, !biotech
-                ? "JustStart_SettingsXenotypeRequiresBiotech".Translate()
-                : customActive
-                    ? "JustStart_SettingsMixedCustomTooltip".Translate()
-                    : "JustStart_SettingsMixedCustomRequiresMixed".Translate());
-
-            listing.Gap(12f);
-            listing.CheckboxLabeled("JustStart_SettingsLimitAgeLabel".Translate(), ref Settings.limitStartingAge,
-                "JustStart_SettingsLimitAgeTooltip".Translate());
-            Rect ageRow = listing.GetRect(32f);
-            ageRow.xMin += IndentWidth;
-            IntRange ageRange = StartingPawnFilters.ClampedRange(Settings.startingAgeRange);
-            Color oldColor = GUI.color;
-            if (!Settings.limitStartingAge)
-                GUI.color = Color.gray;
-            Widgets.IntRange(ageRow, AgeRangeSliderId, ref ageRange, StartingPawnFilters.MinAge, StartingPawnFilters.MaxAge);
-            GUI.color = oldColor;
-            // The slider has no disabled state, so it only keeps changes while the limit is on.
-            if (Settings.limitStartingAge)
-                Settings.startingAgeRange = ageRange;
-            else
-                TooltipHandler.TipRegion(ageRow, "JustStart_SettingsAgeRangeRequiresLimit".Translate());
-
-            listing.Gap(4f);
-            listing.CheckboxLabeled("JustStart_SettingsCapableLabel".Translate(), ref Settings.requireCapableColonists,
-                "JustStart_SettingsCapableTooltip".Translate());
-
-            listing.End();
+            SettingsPage.Draw(inRect);
             base.DoSettingsWindowContents(inRect);
-        }
-
-        private const float SettingsColumnWidth = 640f;
-
-        private const float IndentWidth = 24f;
-
-        private const int AgeRangeSliderId = 0x4A53_4147;
-
-        private static void Heading(Listing_Standard listing, string label)
-        {
-            if (listing.CurHeight > 0f)
-                listing.Gap(18f);
-            Text.Font = GameFont.Medium;
-            listing.Label(label);
-            Text.Font = GameFont.Small;
-            listing.GapLine(6f);
-        }
-
-        // Every loaded biome the game warns about when settling there, including other mods' biomes; rebuilt when a language change reloads the Defs.
-        private static string? extremeBiomeList;
-        private static LoadedLanguage? extremeBiomeListLanguage;
-
-        private static string ExtremeBiomeList
-        {
-            get
-            {
-                if (extremeBiomeList == null || extremeBiomeListLanguage != LanguageDatabase.activeLanguage)
-                {
-                    extremeBiomeListLanguage = LanguageDatabase.activeLanguage;
-                    extremeBiomeList = DefDatabase<BiomeDef>.AllDefs.Where(TileSelector.IsExtreme).Select(b => b.LabelCap.Resolve()).ToLineList("  - ");
-                }
-                return extremeBiomeList;
-            }
         }
     }
 }

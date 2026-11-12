@@ -16,14 +16,35 @@ Instead of Generate, click [b]Just Start[/b], which sits just to its left.
 You never see the site picker, the ideoligion screen or the colonist screen. Season and map size still come from the world settings page's Advanced settings.
 
 [h2]Settings[/h2]
-Right-click the Just Start button, or use the mod settings menu.
+Right-click the Just Start button, or use the mod settings menu. Every filter is off by default, and [b]Reset to defaults[/b] turns them all off again.
+
+[h3]Starting site[/h3]
 [list]
-[*][b]Exclude extreme biomes[/b] (off by default): never start in a biome the game warns you about when settling, such as ice sheet, sea ice or extreme desert. The tooltip lists every biome this covers, including those from other mods.
-[*][b]Ideoligion mode[/b] (Ideology only): choose a classic ideoligion, a random fixed one, a random fluid one, or classic mode for every faction.
-[*][b]Starting xenotype[/b] (Biotech only, Baseliner by default): every colonist gets the xenotype you pick, including your own custom xenotypes. Or choose [b]Mixed[/b] for a random xenotype for each colonist (optionally including custom xenotypes), or [b]Scenario's choice[/b] to keep the scenario's xenotypes, such as the sanguophage in The Sanguophage.
-[*][b]Limit starting age[/b] (off by default): adult colonists are generated with a biological age in the range you set, 18 to 50 by default.
-[*][b]Colonists capable of all work[/b] (off by default): adult colonists are generated with no disabled work, so nobody is incapable of anything.
+[*][b]Exclude extreme biomes[/b]: never start in a biome the game warns you about when settling, such as ice sheet, sea ice or extreme desert. The tooltip lists every biome this covers, including those from other mods.
+[*][b]Allowed terrain[/b]: flat, small hills, large hills and mountainous.
+[*][b]Required features[/b]: a river, a coast or a road.
+[*][b]Growing period[/b]: the shortest outdoor growing period the site may have.
+[*][b]Average temperature[/b]: the range the site's average yearly temperature must fall in.
+[*][b]Hostile settlements[/b]: how far the site must be from any hostile faction's settlement.
 [/list]
+
+[h3]Ideoligion (Ideology only)[/h3]
+[list]
+[*][b]Ideoligion mode[/b]: a classic ideoligion, a random fixed one, a random fluid one, or classic mode for every faction.
+[*][b]Excluded memes[/b]: memes your random ideoligion never gets.
+[/list]
+
+[h3]Colonists[/h3]
+[list]
+[*][b]Starting xenotype[/b] (Biotech only, Baseliner by default): every colonist gets the xenotype you pick, including your own custom xenotypes. Or choose [b]Mixed[/b] for a random xenotype for each colonist (optionally including custom xenotypes), or [b]Scenario's choice[/b] to keep the scenario's xenotypes, such as the sanguophage in The Sanguophage.
+[*][b]Age[/b]: the biological age range of your colonists.
+[*][b]Gender[/b]: any, balanced, all male or all female.
+[*][b]Minimum passions[/b] and [b]Minimum major passions[/b] for each colonist.
+[*][b]Excluded traits[/b]: traits your colonists never have.
+[*][b]Capable of all work[/b], so nobody is incapable of anything, or just [b]Capable of violence[/b].
+[*][b]No addictions[/b], [b]No pregnancies[/b] (Biotech only) and [b]No family or relationships[/b].
+[/list]
+Colonist filters apply to adult colonists. Children, babies and mutants a scenario asks for keep the scenario's settings. If a filter can't be met (say, a forced xenotype that can't do violence), the game gives up after a number of tries and you get the closest colonist it found.
 
 [h2]Compatibility[/h2]
 Safe to add to an existing save. Just Start affects starting a new game.

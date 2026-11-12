@@ -6,13 +6,17 @@ $failures = New-Object System.Collections.Generic.List[string]
 $source = Get-ChildItem (Join-Path $root 'Source') -Recurse -Filter *.cs | ForEach-Object { [IO.File]::ReadAllText($_.FullName) }
 $sourceText = $source -join "`n"
 
-# Keys used in code: literal keys plus JustStart_IdeologyMode<name> for every IdeologyMode value
+# Keys used in code: literal keys plus <prefix><name> for every value of the enums whose labels are built from their names
 $used = New-Object System.Collections.Generic.HashSet[string]
 foreach ($m in [regex]::Matches($sourceText, '"(JustStart_[A-Za-z]+)"')) { [void]$used.Add($m.Groups[1].Value) }
-$enumText = [IO.File]::ReadAllText((Join-Path $root 'Source\JustStart\Core\IdeologyMode.cs'))
-$enumBody = [regex]::Replace([regex]::Match($enumText, 'enum IdeologyMode\s*\{([^}]*)\}').Groups[1].Value, '(?s)///[^\n]*', '')
-foreach ($name in ($enumBody -split ',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }) { [void]$used.Add("JustStart_IdeologyMode$name") }
-[void]$used.Remove('JustStart_IdeologyMode')
+$enumKeys = @{ 'IdeologyMode' = 'JustStart_IdeologyMode'; 'GenderMix' = 'JustStart_Gender' }
+foreach ($enum in $enumKeys.Keys) {
+    $prefix = $enumKeys[$enum]
+    $enumText = [IO.File]::ReadAllText((Join-Path $root "Source\JustStart\Core\$enum.cs"))
+    $enumBody = [regex]::Replace([regex]::Match($enumText, "enum $enum\s*\{([^}]*)\}").Groups[1].Value, '(?s)///[^\n]*', '')
+    foreach ($name in ($enumBody -split ',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }) { [void]$used.Add("$prefix$name") }
+    [void]$used.Remove($prefix)
+}
 
 $keyed = New-Object System.Collections.Generic.HashSet[string]
 foreach ($file in Get-ChildItem (Join-Path $root 'Languages\English\Keyed') -Filter *.xml) {
