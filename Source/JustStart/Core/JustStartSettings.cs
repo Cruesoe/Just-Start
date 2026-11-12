@@ -22,8 +22,20 @@ namespace JustStart
         /// <summary>When on, mixed also picks from the player's custom xenotypes.</summary>
         public bool mixedIncludesCustom = false;
 
+        /// <summary>When on, starting colonists' biological ages fall within startingAgeRange.</summary>
+        public bool limitStartingAge = false;
+
+        /// <summary>Biological age range in years for starting colonists when limitStartingAge is on.</summary>
+        public IntRange startingAgeRange = new IntRange(18, 50);
+
+        /// <summary>When on, starting colonists are generated with no disabled work.</summary>
+        public bool requireCapableColonists = false;
+
         public override void ExposeData()
         {
+            Scribe_Values.Look(ref limitStartingAge, "limitStartingAge", false);
+            Scribe_Values.Look(ref startingAgeRange, "startingAgeRange", new IntRange(18, 50));
+            Scribe_Values.Look(ref requireCapableColonists, "requireCapableColonists", false);
             Scribe_Values.Look(ref excludeExtremeBiomes, "excludeExtremeBiomes", false);
             Scribe_Values.Look(ref defaultIdeologyMode, "defaultIdeologyMode", IdeologyMode.Fixed);
             Scribe_Values.Look(ref xenotypeMode, "xenotypeMode", StartingXenotypeMode.Xenotype);

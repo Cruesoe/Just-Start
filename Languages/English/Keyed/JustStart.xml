@@ -30,6 +30,12 @@
   <JustStart_SettingsMixedCustomTooltip>Mixed can also pick the custom xenotypes you have saved in the xenotype editor.</JustStart_SettingsMixedCustomTooltip>
   <JustStart_SettingsMixedCustomRequiresMixed>Only used when the starting xenotype is Mixed.</JustStart_SettingsMixedCustomRequiresMixed>
 
+  <JustStart_SettingsLimitAgeLabel>Limit starting age</JustStart_SettingsLimitAgeLabel>
+  <JustStart_SettingsLimitAgeTooltip>Adult starting colonists are generated with a biological age in the range below. Ages within the range follow the game's usual age distribution. Children and babies a scenario asks for are not affected.</JustStart_SettingsLimitAgeTooltip>
+  <JustStart_SettingsAgeRangeRequiresLimit>Only used when Limit starting age is on.</JustStart_SettingsAgeRangeRequiresLimit>
+  <JustStart_SettingsCapableLabel>Colonists capable of all work</JustStart_SettingsCapableLabel>
+  <JustStart_SettingsCapableTooltip>Adult starting colonists are generated with no disabled work, from backstories, traits, genes or health. If a forced xenotype or the scenario makes that impossible, the colonist is accepted after repeated tries. Children, babies and mutants a scenario asks for are not affected.</JustStart_SettingsCapableTooltip>
+
   <JustStart_ErrorNoValidTile>No valid starting site exists on this world.</JustStart_ErrorNoValidTile>
   <JustStart_ErrorNoStartingPawns>This scenario produced no starting colonists.</JustStart_ErrorNoStartingPawns>
   <JustStart_ErrorAdjustWorld>The game has not been started. Adjust the world settings and try again.</JustStart_ErrorAdjustWorld>

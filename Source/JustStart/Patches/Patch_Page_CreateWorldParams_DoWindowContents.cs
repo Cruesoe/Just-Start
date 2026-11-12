@@ -11,7 +11,7 @@ namespace JustStart
     /// generation as Generate (CanDoNext), then the Page_SelectStartingSite patches run JustStartFlow instead of showing that page.
     /// </summary>
     [HarmonyPatch(typeof(Page_CreateWorldParams), "DoWindowContents")]
-    public static class Patch_Page_CreateWorldParams_DoWindowContents_AddJustStartButton
+    public static class Patch_Page_CreateWorldParams_DoWindowContents
     {
         private static readonly MethodInfo CanDoNextMethod = AccessTools.Method(typeof(Page_CreateWorldParams), "CanDoNext");
         private static readonly AccessTools.FieldRef<Vector2> BottomButSizeRef =
@@ -32,6 +32,7 @@ namespace JustStart
                 else
                 {
                     StartingXenotype.PrepareRun();
+                    StartingPawnFilters.PrepareRun();
                     JustStartGameStartHook.InvokingFromButton = true;
                     JustStartGameStartHook.PendingAutoStart = true;
                     try

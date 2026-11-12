@@ -21,6 +21,8 @@ Right-click the Just Start button, or use the mod settings menu.
 [*][b]Exclude extreme biomes[/b] (off by default): never start in a biome the game warns you about when settling, such as ice sheet, sea ice or extreme desert. The tooltip lists every biome this covers, including those from other mods.
 [*][b]Ideoligion mode[/b] (Ideology only): choose a classic ideoligion, a random fixed one, a random fluid one, or classic mode for every faction.
 [*][b]Starting xenotype[/b] (Biotech only, Baseliner by default): every colonist gets the xenotype you pick, including your own custom xenotypes. Or choose [b]Mixed[/b] for a random xenotype for each colonist (optionally including custom xenotypes), or [b]Scenario's choice[/b] to keep the scenario's xenotypes, such as the sanguophage in The Sanguophage.
+[*][b]Limit starting age[/b] (off by default): adult colonists are generated with a biological age in the range you set, 18 to 50 by default.
+[*][b]Colonists capable of all work[/b] (off by default): adult colonists are generated with no disabled work, so nobody is incapable of anything.
 [/list]
 
 [h2]Compatibility[/h2]

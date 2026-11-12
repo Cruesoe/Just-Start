@@ -81,6 +81,27 @@ namespace JustStart
                     ? "JustStart_SettingsMixedCustomTooltip".Translate()
                     : "JustStart_SettingsMixedCustomRequiresMixed".Translate());
 
+            listing.Gap(12f);
+            listing.CheckboxLabeled("JustStart_SettingsLimitAgeLabel".Translate(), ref Settings.limitStartingAge,
+                "JustStart_SettingsLimitAgeTooltip".Translate());
+            Rect ageRow = listing.GetRect(32f);
+            ageRow.xMin += IndentWidth;
+            IntRange ageRange = StartingPawnFilters.ClampedRange(Settings.startingAgeRange);
+            Color oldColor = GUI.color;
+            if (!Settings.limitStartingAge)
+                GUI.color = Color.gray;
+            Widgets.IntRange(ageRow, AgeRangeSliderId, ref ageRange, StartingPawnFilters.MinAge, StartingPawnFilters.MaxAge);
+            GUI.color = oldColor;
+            // The slider has no disabled state, so it only keeps changes while the limit is on.
+            if (Settings.limitStartingAge)
+                Settings.startingAgeRange = ageRange;
+            else
+                TooltipHandler.TipRegion(ageRow, "JustStart_SettingsAgeRangeRequiresLimit".Translate());
+
+            listing.Gap(4f);
+            listing.CheckboxLabeled("JustStart_SettingsCapableLabel".Translate(), ref Settings.requireCapableColonists,
+                "JustStart_SettingsCapableTooltip".Translate());
+
             listing.End();
             base.DoSettingsWindowContents(inRect);
         }
@@ -88,6 +109,8 @@ namespace JustStart
         private const float SettingsColumnWidth = 640f;
 
         private const float IndentWidth = 24f;
+
+        private const int AgeRangeSliderId = 0x4A53_4147;
 
         private static void Heading(Listing_Standard listing, string label)
         {
