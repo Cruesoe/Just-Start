@@ -21,7 +21,7 @@ Right-click the Just Start button, or use the mod settings menu. Every filter is
 [b]Starting site[/b]
 [list]
 [*][b]Biomes[/b]: every biome you can start in is ticked; untick any you never want to start in.
-[*][b]Exclude extreme biomes[/b]: never start in a biome the game warns you about when settling, such as ice sheet, sea ice or extreme desert. The tooltip lists every biome this covers, including those from other mods.
+[*][b]Exclude extreme biomes[/b]: never start in a biome the game warns you about when settling, such as ice sheet or extreme desert. The tooltip lists every biome this covers, including those from other mods.
 [*][b]Allowed terrain[/b]: flat, small hills, large hills and mountainous.
 [*][b]Required features[/b]: a river, a coast or a road.
 [*][b]Growing period[/b]: the shortest outdoor growing period the site may have.

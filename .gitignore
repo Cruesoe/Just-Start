@@ -9,3 +9,4 @@ Directory.Build.targets
 *.slnx
 AGENTS.md
 CLAUDE.md
+Tools/Screenshots/
