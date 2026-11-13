@@ -101,10 +101,11 @@ namespace JustStart
                 labelRect.xMin += 4f;
 
             bool disabled = entry.DisabledReason != null;
-            bool wasTicked = keys.Contains(entry.Key) != keysAreUnticked;
+            // A disabled entry is excluded elsewhere, so it shows as excluded: unticked when ticks allow, ticked when ticks exclude.
+            bool wasTicked = disabled ? !keysAreUnticked : keys.Contains(entry.Key) != keysAreUnticked;
             bool isTicked = wasTicked;
             Widgets.CheckboxLabeled(labelRect, entry.Label, ref isTicked, disabled);
-            if (isTicked != wasTicked)
+            if (!disabled && isTicked != wasTicked)
             {
                 if (isTicked != keysAreUnticked)
                     keys.Add(entry.Key);
