@@ -1,26 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <JustStart_ButtonJustStart>Just Start</JustStart_ButtonJustStart>
-  <JustStart_ButtonJustStartTooltip>Generate the world, then skip straight to playing: pick a random starting site, set up the ideoligion and accept the scenario's colonists (with the xenotype chosen in the settings), with no further setup screens.\n\nRight-click for Just Start settings.</JustStart_ButtonJustStartTooltip>
+  <JustStart_ButtonJustStartTooltip>Generate the world, then skip straight to playing: pick a random starting site, set up the ideoligion and accept the scenario's colonists, following the Just Start settings, with no further setup screens.\n\nRight-click for Just Start settings.</JustStart_ButtonJustStartTooltip>
 
   <JustStart_SettingsSectionSite>Starting site</JustStart_SettingsSectionSite>
   <JustStart_SettingsSectionIdeoligion>Ideoligion</JustStart_SettingsSectionIdeoligion>
   <JustStart_SettingsSectionColonists>Colonists</JustStart_SettingsSectionColonists>
 
+  <JustStart_RequiresIdeology>Requires the Ideology DLC.</JustStart_RequiresIdeology>
+  <JustStart_RequiresBiotech>Requires the Biotech DLC.</JustStart_RequiresBiotech>
+
+  <JustStart_ValueAny>Any</JustStart_ValueAny>
+  <JustStart_ValueNone>None</JustStart_ValueNone>
+  <JustStart_ValueDays>At least {0} days</JustStart_ValueDays>
+  <JustStart_ValueTiles>At least {0} tiles away</JustStart_ValueTiles>
+  <JustStart_ValueAll>All</JustStart_ValueAll>
+  <JustStart_ValueExcluded>{0} excluded</JustStart_ValueExcluded>
+  <JustStart_ValueMemes>{0} excluded</JustStart_ValueMemes>
+  <JustStart_ValueTraits>{0} excluded</JustStart_ValueTraits>
+
+  <JustStart_ChecklistClear>Clear all</JustStart_ChecklistClear>
+  <JustStart_ChecklistTickAll>Tick all</JustStart_ChecklistTickAll>
+  <JustStart_ChecklistUntickToExclude>Untick to exclude.</JustStart_ChecklistUntickToExclude>
+  <JustStart_ChecklistTickToExclude>Tick to exclude.</JustStart_ChecklistTickToExclude>
+
+  <JustStart_SettingsBiomesLabel>Biomes</JustStart_SettingsBiomesLabel>
+  <JustStart_SettingsBiomesTooltip>The biomes the site can be in. All are ticked by default; untick any you never want to start in. Biomes added by other mods start ticked. Extreme biomes are also left out while Exclude extreme biomes is on.</JustStart_SettingsBiomesTooltip>
+  <JustStart_SettingsBiomeExcludedExtreme>Excluded by Exclude extreme biomes.</JustStart_SettingsBiomeExcludedExtreme>
   <JustStart_SettingsExcludeExtremeLabel>Exclude extreme biomes</JustStart_SettingsExcludeExtremeLabel>
   <JustStart_SettingsExcludeExtremeTooltip>Never start in a biome the game warns about when you settle there:\n{0}</JustStart_SettingsExcludeExtremeTooltip>
 
+  <JustStart_SettingsTerrainLabel>Allowed terrain</JustStart_SettingsTerrainLabel>
+  <JustStart_SettingsTerrainTooltip>Only start on tiles with a ticked terrain.</JustStart_SettingsTerrainTooltip>
+  <JustStart_SettingsTerrainFlat>Flat</JustStart_SettingsTerrainFlat>
+  <JustStart_SettingsTerrainSmallHills>Small hills</JustStart_SettingsTerrainSmallHills>
+  <JustStart_SettingsTerrainLargeHills>Large hills</JustStart_SettingsTerrainLargeHills>
+  <JustStart_SettingsTerrainMountainous>Mountainous</JustStart_SettingsTerrainMountainous>
+
+  <JustStart_SettingsFeaturesLabel>Required features</JustStart_SettingsFeaturesLabel>
+  <JustStart_SettingsFeaturesTooltip>Only start on tiles with every ticked feature.</JustStart_SettingsFeaturesTooltip>
+  <JustStart_SettingsFeatureRiver>River</JustStart_SettingsFeatureRiver>
+  <JustStart_SettingsFeatureCoast>Coast</JustStart_SettingsFeatureCoast>
+  <JustStart_SettingsFeatureRoad>Road</JustStart_SettingsFeatureRoad>
+
+  <JustStart_SettingsGrowingLabel>Growing period</JustStart_SettingsGrowingLabel>
+  <JustStart_SettingsGrowingTooltip>The shortest outdoor growing period the starting site may have, as shown on the world map's terrain tab. A year is 60 days.</JustStart_SettingsGrowingTooltip>
+  <JustStart_SettingsTemperatureLabel>Average temperature</JustStart_SettingsTemperatureLabel>
+  <JustStart_SettingsTemperatureTooltip>The range the starting site's average yearly temperature must fall in. The full range allows any temperature.</JustStart_SettingsTemperatureTooltip>
+  <JustStart_SettingsHostileLabel>Hostile settlements</JustStart_SettingsHostileLabel>
+  <JustStart_SettingsHostileTooltip>How far the starting site must be from every settlement of a faction hostile to you.</JustStart_SettingsHostileTooltip>
+
   <JustStart_SettingsDefaultIdeologyLabel>Ideoligion mode</JustStart_SettingsDefaultIdeologyLabel>
-  <JustStart_SettingsDefaultIdeologyTooltip>How Just Start sets up your ideoligion.</JustStart_SettingsDefaultIdeologyTooltip>
-  <JustStart_SettingsDefaultIdeologyRequiresIdeology>Requires the Ideology DLC.</JustStart_SettingsDefaultIdeologyRequiresIdeology>
-  <JustStart_IdeologyModeInactive>Classic ideoligion for the player only</JustStart_IdeologyModeInactive>
-  <JustStart_IdeologyModeFixed>Random fixed ideoligion</JustStart_IdeologyModeFixed>
-  <JustStart_IdeologyModeFluid>Random fluid ideoligion</JustStart_IdeologyModeFluid>
-  <JustStart_IdeologyModeClassic>Classic mode (every faction shares one classic ideoligion)</JustStart_IdeologyModeClassic>
+  <JustStart_SettingsDefaultIdeologyTooltip>How Just Start sets up your ideoligion:\n- Classic, player only: a classic ideoligion for you; other factions keep theirs.\n- Random fixed or Random fluid: a randomly generated ideoligion.\n- Classic mode: every faction shares one classic ideoligion.</JustStart_SettingsDefaultIdeologyTooltip>
+  <JustStart_IdeologyModeInactive>Classic, player only</JustStart_IdeologyModeInactive>
+  <JustStart_IdeologyModeFixed>Random fixed</JustStart_IdeologyModeFixed>
+  <JustStart_IdeologyModeFluid>Random fluid</JustStart_IdeologyModeFluid>
+  <JustStart_IdeologyModeClassic>Classic mode</JustStart_IdeologyModeClassic>
+  <JustStart_SettingsMemesLabel>Excluded memes</JustStart_SettingsMemesLabel>
+  <JustStart_SettingsMemesTooltip>Memes your random ideoligion never gets. Structure memes, such as theist or animist, are not affected.</JustStart_SettingsMemesTooltip>
+  <JustStart_SettingsMemesRequiresRandom>Only used with a random fixed or fluid ideoligion.</JustStart_SettingsMemesRequiresRandom>
 
   <JustStart_SettingsXenotypeLabel>Starting xenotype</JustStart_SettingsXenotypeLabel>
   <JustStart_SettingsXenotypeTooltip>The xenotype of every starting colonist, or a random one each with Mixed. Anything other than Scenario's choice overrides the xenotypes the scenario sets.</JustStart_SettingsXenotypeTooltip>
-  <JustStart_SettingsXenotypeRequiresBiotech>Requires the Biotech DLC.</JustStart_SettingsXenotypeRequiresBiotech>
   <JustStart_XenotypeBaseliner>Baseliner</JustStart_XenotypeBaseliner>
   <JustStart_XenotypeScenario>Scenario's choice</JustStart_XenotypeScenario>
   <JustStart_XenotypeScenarioTooltip>Starting colonists keep the xenotypes the scenario gives them, such as the sanguophage in The Sanguophage.</JustStart_XenotypeScenarioTooltip>
@@ -30,7 +71,39 @@
   <JustStart_SettingsMixedCustomTooltip>Mixed can also pick the custom xenotypes you have saved in the xenotype editor.</JustStart_SettingsMixedCustomTooltip>
   <JustStart_SettingsMixedCustomRequiresMixed>Only used when the starting xenotype is Mixed.</JustStart_SettingsMixedCustomRequiresMixed>
 
-  <JustStart_ErrorNoValidTile>No valid starting site exists on this world.</JustStart_ErrorNoValidTile>
+  <JustStart_SettingsAgeLabel>Age</JustStart_SettingsAgeLabel>
+  <JustStart_SettingsAgeTooltip>The biological age range of starting colonists. Ages within it follow the game's usual age spread. The full range allows any age.</JustStart_SettingsAgeTooltip>
+  <JustStart_SettingsGenderLabel>Gender</JustStart_SettingsGenderLabel>
+  <JustStart_SettingsGenderTooltip>The genders of starting colonists. Balanced alternates them so the colony is as even as its size allows.</JustStart_SettingsGenderTooltip>
+  <JustStart_GenderAny>Any</JustStart_GenderAny>
+  <JustStart_GenderBalanced>Balanced</JustStart_GenderBalanced>
+  <JustStart_GenderMale>All male</JustStart_GenderMale>
+  <JustStart_GenderFemale>All female</JustStart_GenderFemale>
+
+  <JustStart_SettingsPassionsLabel>Minimum passions</JustStart_SettingsPassionsLabel>
+  <JustStart_SettingsPassionsTooltip>The fewest passions, minor or major, each starting colonist has.</JustStart_SettingsPassionsTooltip>
+  <JustStart_SettingsMajorPassionsLabel>Minimum major passions</JustStart_SettingsMajorPassionsLabel>
+  <JustStart_SettingsMajorPassionsTooltip>The fewest major (burning) passions each starting colonist has.</JustStart_SettingsMajorPassionsTooltip>
+  <JustStart_SettingsTraitsLabel>Excluded traits</JustStart_SettingsTraitsLabel>
+  <JustStart_SettingsTraitsTooltip>Traits starting colonists never have.</JustStart_SettingsTraitsTooltip>
+
+  <JustStart_SettingsCapableLabel>Capable of all work</JustStart_SettingsCapableLabel>
+  <JustStart_SettingsCapableTooltip>Starting colonists have no disabled work, from backstories, traits, genes or health.</JustStart_SettingsCapableTooltip>
+  <JustStart_SettingsViolenceLabel>Capable of violence</JustStart_SettingsViolenceLabel>
+  <JustStart_SettingsViolenceTooltip>Starting colonists are never incapable of violence.</JustStart_SettingsViolenceTooltip>
+  <JustStart_SettingsViolenceIncluded>Included in Capable of all work.</JustStart_SettingsViolenceIncluded>
+
+  <JustStart_SettingsNoAddictionsLabel>No addictions</JustStart_SettingsNoAddictionsLabel>
+  <JustStart_SettingsNoAddictionsTooltip>Starting colonists have no drug addictions.</JustStart_SettingsNoAddictionsTooltip>
+  <JustStart_SettingsNoPregnanciesLabel>No pregnancies</JustStart_SettingsNoPregnanciesLabel>
+  <JustStart_SettingsNoPregnanciesTooltip>Starting colonists are never pregnant.</JustStart_SettingsNoPregnanciesTooltip>
+  <JustStart_SettingsNoRelationsLabel>No family or relationships</JustStart_SettingsNoRelationsLabel>
+  <JustStart_SettingsNoRelationsTooltip>Starting colonists have no relatives, partners or exes, among themselves or elsewhere in the world.</JustStart_SettingsNoRelationsTooltip>
+
+  <JustStart_SettingsReset>Reset to defaults</JustStart_SettingsReset>
+  <JustStart_SettingsResetTooltip>Set every Just Start setting back to its default.</JustStart_SettingsResetTooltip>
+
+  <JustStart_ErrorNoValidTile>No starting site on this world matches the Just Start starting site settings.</JustStart_ErrorNoValidTile>
   <JustStart_ErrorNoStartingPawns>This scenario produced no starting colonists.</JustStart_ErrorNoStartingPawns>
-  <JustStart_ErrorAdjustWorld>The game has not been started. Adjust the world settings and try again.</JustStart_ErrorAdjustWorld>
+  <JustStart_ErrorAdjustWorld>The game has not been started. Adjust the world or Just Start settings and try again.</JustStart_ErrorAdjustWorld>
 </LanguageData>

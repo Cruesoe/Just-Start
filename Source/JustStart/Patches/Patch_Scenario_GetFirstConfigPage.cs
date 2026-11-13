@@ -3,9 +3,9 @@ using RimWorld;
 
 namespace JustStart
 {
-    // Forced-map scenarios omit site selection; add a hidden hook without changing their normal page flow.
+    /// <summary>Forced-map scenarios omit site selection; adds a hidden hook page without changing their normal page flow.</summary>
     [HarmonyPatch(typeof(Scenario), nameof(Scenario.GetFirstConfigPage))]
-    public static class Patch_Scenario_GetFirstConfigPage_AddForcedMapHook
+    public static class Patch_Scenario_GetFirstConfigPage
     {
         public static void Postfix(Scenario __instance, Page __result)
         {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
 using Verse;
@@ -65,7 +66,12 @@ namespace JustStart
         private static Ideo GenerateRandomIdeo(FactionDef playerDef, IdeologyMode mode)
         {
             bool fluid = mode == IdeologyMode.Fluid;
-            Ideo ideo = IdeoGenerator.GenerateIdeo(new IdeoGenerationParms(playerDef, forNewFluidIdeo: fluid));
+            // disallowedMemes only filters normal memes; structure memes and the faction's required memes are unaffected.
+            List<MemeDef> excluded = JustStartMod.Settings.excludedMemes
+                .Select(name => DefDatabase<MemeDef>.GetNamedSilentFail(name))
+                .Where(meme => meme != null)
+                .ToList();
+            Ideo ideo = IdeoGenerator.GenerateIdeo(new IdeoGenerationParms(playerDef, disallowedMemes: excluded.Count > 0 ? excluded : null, forNewFluidIdeo: fluid));
             ideo.Fluid = fluid;
             return ideo;
         }

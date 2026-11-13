@@ -7,4 +7,7 @@ instead of Generate and it takes over from there: a random starting site, weight
 "Select random site" button, and the scenario's colonists as they come. No site hunting, no rerolling.
 
 Optionally excludes extreme biomes, sets up your ideoligion for you when Ideology is active, and gives your
-colonists the xenotype of your choice (or a random mix) when Biotech is active.
+colonists the xenotype of your choice (or a random mix) when Biotech is active. Optional filters narrow the
+starting site (biomes, terrain, rivers, coast, roads, growing period, temperature, distance from enemies), the
+ideoligion's memes, and the colonists (age, gender, passions, traits, capability, addictions, pregnancy and
+relationships).

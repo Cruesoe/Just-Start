@@ -6,7 +6,7 @@
   <modVersion IgnoreIfNoMatchingField="True">261030</modVersion>
   <description>You configure the game. Just Start deals you the hand.
 
-One of the hardest things in RimWorld is actually getting started. I spend ages picking the perfect colonists and agonising over which tile to settle, so long that I barely get round to playing. Maybe you do too. Just Start fixes that. Set up your game the way you like (scenario, storyteller, difficulty, world settings), then press one button. You get a random starting site, a random ideoligion and whoever the game gives you as colonists, and you're straight into the game.
+One of the hardest things in RimWorld is actually getting started. I spend ages picking the perfect colonists and agonizing over which tile to settle, so long that I barely get around to playing. Maybe you do too. Just Start fixes that. Set up your game the way you like (scenario, storyteller, difficulty, world settings), then press one button. You get a random starting site, a random ideoligion and whoever the game gives you as colonists, and you're straight into the game.
 
 How it works
 Instead of Generate, click Just Start, which sits just to its left. Just Start:
@@ -18,10 +18,27 @@ Instead of Generate, click Just Start, which sits just to its left. Just Start:
 You never see the site picker, the ideoligion screen or the colonist screen. Season and map size still come from the world settings page's Advanced settings.
 
 Settings
-Right-click the Just Start button, or use the mod settings menu.
-- Exclude extreme biomes (off by default): never start in a biome the game warns you about when settling, such as ice sheet, sea ice or extreme desert. The tooltip lists every biome this covers, including those from other mods.
-- Ideoligion mode (Ideology only): a classic ideoligion, a random fixed one, a random fluid one, or classic mode for every faction.
-- Starting xenotype (Biotech only, Baseliner by default): every colonist gets the xenotype you pick, including your own custom xenotypes; or Mixed, a random xenotype for each colonist (optionally including custom xenotypes); or Scenario's choice, which keeps the scenario's xenotypes.</description>
+Right-click the Just Start button, or use the mod settings menu. Every filter is off by default.
+
+Starting site
+- Biomes: untick any biome you never want to start in.
+- Exclude extreme biomes: never start in a biome the game warns you about when settling, such as ice sheet or extreme desert.
+- Allowed terrain: flat, small hills, large hills and mountainous.
+- Required features: a river, coast or road.
+- Growing period, average temperature, and a minimum distance from hostile settlements.
+
+Ideoligion (Ideology only)
+- Ideoligion mode: a classic ideoligion, a random fixed one, a random fluid one, or classic mode for every faction.
+- Excluded memes: memes your random ideoligion never gets.
+
+Colonists
+- Starting xenotype (Biotech only, Baseliner by default): every colonist gets the xenotype you pick, including your own custom xenotypes; or Mixed, a random xenotype for each colonist (optionally including custom xenotypes); or Scenario's choice, which keeps the scenario's xenotypes.
+- Age range and gender: any, balanced, all male or all female.
+- Minimum passions and major passions, and excluded traits.
+- Capable of all work, or just capable of violence.
+- No addictions, no pregnancies (Biotech only), and no family or relationships.
+
+Colonist filters apply to adult colonists; children, babies and mutants a scenario asks for keep the scenario's settings.</description>
   <supportedVersions>
     <li>1.6</li>
     <li>1.7</li>
